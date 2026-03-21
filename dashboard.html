@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Viralzap</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+    <header class="dashboard-header">
+        <a href="index.html" class="logo-text">Viralzap</a>
+    </header>
+
+    <div class="dashboard-layout">
+        <!-- Left: Settings & Navigation -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-search-wrap">
+                <span class="sidebar-search-icon" aria-hidden="true">🔍</span>
+                <input type="search" class="sidebar-search" id="sidebar-search" placeholder="Search settings..." autocomplete="off">
+            </div>
+            <nav class="sidebar-nav" aria-label="Dashboard navigation">
+                <ul class="sidebar-list" id="sidebar-nav-list">
+                    <li class="sidebar-item" data-nav="home">
+                        <a href="#" class="sidebar-btn sidebar-link active" data-page="home">Home</a>
+                    </li>
+                    <li class="sidebar-item sidebar-item-dropdown" data-nav="channels">
+                        <button type="button" class="sidebar-btn" id="channels-btn" aria-expanded="false" aria-controls="channels-dropdown">
+                            <span class="sidebar-btn-label">Channels</span>
+                            <span class="sidebar-dropdown-arrow" aria-hidden="true">▼</span>
+                        </button>
+                        <ul class="sidebar-dropdown" id="channels-dropdown" role="menu" hidden>
+                            <li role="none"><a href="#" class="sidebar-sublink" data-sub="shorts">Shorts</a></li>
+                            <li role="none"><a href="#" class="sidebar-sublink" data-sub="longform">Longform</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item" data-nav="viral">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="viral">Viral Videos</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="similar">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="similar">Similar Channels</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="trending-topics">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="trending-topics">Trending Topics</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="recommended-ideas">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="recommended-ideas">Recommended Ideas/Topics</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="youtube-scraper">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="youtube-scraper">YouTube Scraper</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="find-channel">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="find-channel">Find Channel</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="analytics">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="analytics">Analytics</a>
+                    </li>
+                    <li class="sidebar-item" data-nav="settings">
+                        <a href="#" class="sidebar-btn sidebar-link" data-page="settings">Settings</a>
+                    </li>
+                    <li class="sidebar-item sidebar-item-logout" data-nav="logout">
+                        <button type="button" class="sidebar-btn sidebar-btn-logout" id="sidebar-logout">Logout</button>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Right: Main content -->
+        <main class="dashboard-main" id="dashboard-main">
+            <div class="dashboard-content-placeholder" id="dashboard-content">
+                <!-- Home view (tabs + video grid) loads here by default -->
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="public-config.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="razorpay-config.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="youtube-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

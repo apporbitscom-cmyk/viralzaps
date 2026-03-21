@@ -1,0 +1,13 @@
+{
+  "name": "viralzap",
+  "private": true,
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "serve": "npx serve . -l 3000",
+    "backend": "cd backend && npm start",
+    "dev": "concurrently \"npm start\" \"npm run backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
