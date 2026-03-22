@@ -1,4 +1,4 @@
-# Hosting Viralzap on the Web
+# Hosting Viralzaps on the Web
 
 Your app has two parts:
 1. **Frontend** – static files (HTML, CSS, JS) served on port 3000

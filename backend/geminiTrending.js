@@ -95,8 +95,9 @@ function extractJsonArrayFromText(text) {
   return items.length ? items : null;
 }
 
-async function callGeminiGenerateContent({ prompt }) {
-  if (!GEMINI_API_KEY) {
+async function callGeminiGenerateContent({ prompt, apiKey }) {
+  const key = (apiKey && String(apiKey).trim()) || GEMINI_API_KEY;
+  if (!key) {
     const err = new Error('GEMINI_API_KEY is not configured');
     err.statusCode = 503;
     throw err;
@@ -106,7 +107,7 @@ async function callGeminiGenerateContent({ prompt }) {
     'https://generativelanguage.googleapis.com/v1beta/models/' +
     encodeURIComponent(GEMINI_MODEL) +
     ':generateContent?key=' +
-    encodeURIComponent(GEMINI_API_KEY);
+    encodeURIComponent(key);
 
   const body = {
     contents: [
@@ -195,9 +196,9 @@ function buildPrompt({ keyword, parent, exclusions }) {
   );
 }
 
-async function generateTrendingIdeas({ keyword, parent, exclusions }) {
+async function generateTrendingIdeas({ keyword, parent, exclusions, apiKey }) {
   const prompt = buildPrompt({ keyword, parent, exclusions });
-  const itemsRaw = await callGeminiGenerateContent({ prompt });
+  const itemsRaw = await callGeminiGenerateContent({ prompt, apiKey });
   const items = dedupeStrings(itemsRaw).map((s) => String(s).trim());
   const sliced = items.slice(0, 5);
   return sliced;

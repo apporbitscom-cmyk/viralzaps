@@ -1,5 +1,5 @@
 {
-  "name": "viralzap",
+  "name": "viralzaps",
   "private": true,
   "scripts": {
     "start": "npx serve . -l 3000",

@@ -1,4 +1,4 @@
-# Viralzap – Tech Stack
+# Viralzaps – Tech Stack
 
 Single reference for frontend, backend, authentication, payments, and third-party services used in this project.
 
@@ -46,11 +46,12 @@ Single reference for frontend, backend, authentication, payments, and third-part
 
 ### Client-side storage (localStorage)
 - Auth: handled by Firebase; app may store user refs.
-- `viralzap_subscription_plan` – Active plan (starter/professional/ultimate) and renewal.
-- `viralzap_credits_purchased` – Purchased credit pack total.
-- `viralzap_credits_used` – Used credits count.
-- `viralzap_billing_history` – Billing entries (plans + credit packs).
-- `viralzap_recent_searches` – Recent Viralzap searches.
+- `subscription_plan` – Active plan (starter/professional/ultimate) and renewal.
+- `viralzaps_credits_purchased` – Purchased credit pack total.
+- `viralzaps_credits_used` – Used credits count.
+- `viralzaps_billing_history` – Billing entries (plans + credit packs).
+- `viralzaps_recent_searches` – Recent Viralzaps searches.
+- `viralzaps_trial_start` – Trial period start (ISO date).
 - `theme` – Light/dark preference (landing).
 
 ---

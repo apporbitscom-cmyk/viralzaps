@@ -35,6 +35,27 @@
 })();
 
 (function () {
+    // Copy legacy localStorage keys viralzap_* → viralzaps_* (one-time per key)
+    (function migrateLegacyViralzapKeys() {
+        var pairs = [
+            ['viralzap_trial_start', 'viralzaps_trial_start'],
+            ['viralzap_billing_history', 'viralzaps_billing_history'],
+            ['viralzap_credits_purchased', 'viralzaps_credits_purchased'],
+            ['viralzap_credits_used', 'viralzaps_credits_used'],
+            ['viralzap_recent_searches', 'viralzaps_recent_searches']
+        ];
+        try {
+            pairs.forEach(function (pr) {
+                var oldK = pr[0];
+                var newK = pr[1];
+                if (!localStorage.getItem(newK) && localStorage.getItem(oldK)) {
+                    localStorage.setItem(newK, localStorage.getItem(oldK));
+                    localStorage.removeItem(oldK);
+                }
+            });
+        } catch (e) {}
+    })();
+
     var channelsBtn = document.getElementById('channels-btn');
     var channelsDropdown = document.getElementById('channels-dropdown');
     var channelsItem = document.querySelector('.sidebar-item-dropdown');
@@ -81,8 +102,8 @@
         'Trending Channels',
         'High Views, Low Uploads',
         'Underrated Channels',
-        'Recently Added To Viralzap',
-        'Picked by Viralzap'
+        'Recently Added To Viralzaps',
+        'Picked by Viralzaps'
     ];
     var sortedByOptions = [
         'Subscriber Count',
@@ -379,12 +400,12 @@
                                 renderChannelsView(resultsEl, 'highViewsLowUploads');
                             } else if (val === 'Underrated Channels') {
                                 renderChannelsView(resultsEl, 'underratedChannels');
-                            } else if (val === 'Recently Added To Viralzap') {
-                                renderChannelsView(resultsEl, 'recentlyAddedToViralzap');
-                            } else if (val === 'Picked by Viralzap') {
+                            } else if (val === 'Recently Added To Viralzaps') {
+                                renderChannelsView(resultsEl, 'recentlyAddedToViralzaps');
+                            } else if (val === 'Picked by Viralzaps') {
                                 lastChannelList = [];
                                 lastResultsEl = null;
-                                renderPickedByViralzapView(resultsEl);
+                                renderPickedByViralzapsView(resultsEl);
                             } else {
                                 lastChannelList = [];
                                 lastResultsEl = null;
@@ -467,30 +488,30 @@
             '</div>';
     }
 
-    var VIRALZAP_RECENT_KEY = 'viralzap_recent_searches';
-    var VIRALZAP_RECENT_MAX = 30;
+    var VIRALZAPS_RECENT_KEY = 'viralzaps_recent_searches';
+    var VIRALZAPS_RECENT_MAX = 30;
 
-    function getViralzapRecentSearches() {
+    function getViralzapsRecentSearches() {
         try {
-            var raw = localStorage.getItem(VIRALZAP_RECENT_KEY);
+            var raw = localStorage.getItem(VIRALZAPS_RECENT_KEY);
             if (!raw) return [];
             var arr = JSON.parse(raw);
-            return Array.isArray(arr) ? arr.slice(0, VIRALZAP_RECENT_MAX) : [];
+            return Array.isArray(arr) ? arr.slice(0, VIRALZAPS_RECENT_MAX) : [];
         } catch (e) {
             return [];
         }
     }
 
-    function recordViralzapSearch(query) {
+    function recordViralzapsSearch(query) {
         if (!query || typeof query !== 'string') return;
         var q = query.trim();
         if (q.length < 2) return;
         try {
-            var list = getViralzapRecentSearches();
+            var list = getViralzapsRecentSearches();
             list = list.filter(function (x) { return x !== q; });
             list.unshift(q);
-            list = list.slice(0, VIRALZAP_RECENT_MAX);
-            localStorage.setItem(VIRALZAP_RECENT_KEY, JSON.stringify(list));
+            list = list.slice(0, VIRALZAPS_RECENT_MAX);
+            localStorage.setItem(VIRALZAPS_RECENT_KEY, JSON.stringify(list));
         } catch (e) {}
     }
 
@@ -663,345 +684,117 @@
         container.innerHTML =
             '<div class="trending-topics-view">' +
             '<h2 class="trending-topics-title">Trending Topics</h2>' +
-            '<p class="trending-topics-subtitle">Enter a keyword, then click nodes to expand an AI-powered idea tree.</p>' +
+            '<p class="trending-topics-subtitle">Enter a topic to see <strong>related videos</strong> that are popular on YouTube (high views, recent when available).</p>' +
             '<div class="trending-topics-search-wrap">' +
-            '<input type="search" class="trending-topics-search-input" id="trending-topics-search-input" placeholder="e.g. cat, dog, health, fitness, gaming..." autocomplete="off">' +
-            '<button type="button" class="trending-topics-search-btn" id="trending-topics-search-btn">Search</button>' +
+            '<input type="search" class="trending-topics-search-input" id="trending-topics-live-search" placeholder="Search a topic (e.g. gaming, recipes, tech)…" autocomplete="off">' +
+            '<button type="button" class="trending-topics-search-btn" id="trending-topics-live-btn">Search</button>' +
             '</div>' +
-            '<div class="trending-topics-results" id="trending-topics-results"></div>' +
+            '<div class="trending-youtube-live-results" id="trending-youtube-live-results" aria-live="polite"></div>' +
             '</div>';
 
-        var resultsEl = document.getElementById('trending-topics-results');
-        var searchInput = document.getElementById('trending-topics-search-input');
-        var searchBtn = document.getElementById('trending-topics-search-btn');
-
-        var apiBaseUrl = (window.VIRALZAP_PUBLIC_CONFIG && window.VIRALZAP_PUBLIC_CONFIG.apiBaseUrl)
-            ? window.VIRALZAP_PUBLIC_CONFIG.apiBaseUrl
+        var apiBaseUrl = (typeof window !== 'undefined' && window.VIRALZAPS_PUBLIC_CONFIG && window.VIRALZAPS_PUBLIC_CONFIG.apiBaseUrl)
+            ? window.VIRALZAPS_PUBLIC_CONFIG.apiBaseUrl
             : 'http://localhost:4000';
-        var ideaApiUrl = apiBaseUrl + '/api/gemini-trending';
-        var activeRunId = 0;
+        var inp = document.getElementById('trending-topics-live-search');
+        var btn = document.getElementById('trending-topics-live-btn');
+        var out = document.getElementById('trending-youtube-live-results');
 
-        function normalizeKey(s) {
-            return String(s || '')
-                .toLowerCase()
-                .trim()
-                .replace(/\s+/g, ' ');
+        function renderLoading() {
+            if (!out) return;
+            out.innerHTML = '<p class="trending-topics-message trending-youtube-live-status">Loading…</p>';
         }
 
-        function setMessage(html, opts) {
-            if (!resultsEl) return;
-            resultsEl.innerHTML = html;
-            if (opts && opts.preserveScroll) {
-                // Intentionally no-op; kept for future tweaks.
-            }
-        }
-
-        function showTreeLoading(message) {
-            setMessage(
-                '<div class="idea-tree-loading">' +
-                '<div class="idea-tree-spinner" aria-hidden="true"></div>' +
-                '<p class="trending-topics-message" style="margin-top:0.75rem;">' + escapeHtml(message || 'Generating ideas...') + '</p>' +
-                '</div>'
-            );
-        }
-
-        function createTreeNodeEl(label, depth, treeState, onExpand) {
-            var nodeId = 'idea_' + Math.random().toString(16).slice(2);
-            var indentPx = Math.max(0, depth - 1) * 18;
-
-            var wrapEl = document.createElement('div');
-            wrapEl.className = 'idea-tree-node';
-            wrapEl.setAttribute('data-node-id', nodeId);
-            wrapEl.style.marginLeft = indentPx + 'px';
-
-            var rowEl = document.createElement('div');
-            rowEl.className = 'idea-tree-node-row';
-
-            var expanderBtn = document.createElement('button');
-            expanderBtn.type = 'button';
-            expanderBtn.className = 'idea-tree-expander';
-            expanderBtn.setAttribute('aria-label', 'Expand');
-            expanderBtn.setAttribute('aria-expanded', 'false');
-            expanderBtn.textContent = '▸';
-
-            var labelBtn = document.createElement('button');
-            labelBtn.type = 'button';
-            labelBtn.className = 'idea-tree-label-btn';
-            labelBtn.textContent = label;
-
-            rowEl.appendChild(expanderBtn);
-            rowEl.appendChild(labelBtn);
-
-            var childrenEl = document.createElement('div');
-            childrenEl.className = 'idea-tree-children';
-
-            wrapEl.appendChild(rowEl);
-            wrapEl.appendChild(childrenEl);
-
-            var nodeState = {
-                id: nodeId,
-                label: label,
-                depth: depth,
-                loaded: false,
-                expanded: false,
-                loading: false,
-                childrenEl: childrenEl,
-                expanderBtn: expanderBtn
-            };
-
-            function toggleExpanded(nextExpanded) {
-                nodeState.expanded = nextExpanded;
-                childrenEl.hidden = !nextExpanded;
-                expanderBtn.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
-                expanderBtn.classList.toggle('open', nextExpanded);
-                expanderBtn.textContent = nextExpanded ? '▾' : '▸';
-            }
-
-            function renderLoading() {
-                childrenEl.hidden = false;
-                wrapEl.classList.add('is-loading');
-                expanderBtn.disabled = true;
-                childrenEl.innerHTML =
-                    '<div class="idea-tree-loading-row">' +
-                    '<div class="idea-tree-spinner idea-tree-spinner-sm" aria-hidden="true"></div>' +
-                    '<span class="trending-topics-message" style="margin-left:0.75rem;">Loading...</span>' +
-                    '</div>';
-            }
-
-            async function expandIfNeeded() {
-                if (nodeState.loading) return;
-
-                if (nodeState.loaded) {
-                    toggleExpanded(!nodeState.expanded);
-                    return;
-                }
-
-                nodeState.loading = true;
-                expanderBtn.disabled = true;
-                renderLoading();
-
-                // `treeState.seen` stores normalized ideas; we pass them back to Gemini
-                // to reduce duplicates and repetition in deeper levels.
-                var exclusions = Array.from(treeState.seen);
-
-                try {
-                    var items = await onExpand({
-                        keyword: treeState.keyword,
-                        parent: nodeState.label,
-                        exclusions: exclusions
-                    });
-
-                    if (!items || !items.length) {
-                        childrenEl.innerHTML = '<p class="trending-topics-message">No new ideas were generated.</p>';
-                        nodeState.loaded = true;
-                        nodeState.expanded = true;
-                        expanderBtn.disabled = false;
-                        toggleExpanded(true);
-                        return;
-                    }
-
-                    // Avoid duplicates on the client as well.
-                    var uniq = [];
-                    var seenInCall = {};
-                    items.forEach(function (it) {
-                        var k = normalizeKey(it);
-                        if (!k || treeState.seen.has(k) || seenInCall[k]) return;
-                        seenInCall[k] = true;
-                        uniq.push(it);
-                    });
-
-                    uniq.forEach(function (it) {
-                        treeState.seen.add(normalizeKey(it));
-                    });
-
-                    childrenEl.innerHTML = '';
-                    uniq.forEach(function (it) {
-                        var childEl = createTreeNodeEl(it, depth + 1, treeState, onExpand);
-                        childrenEl.appendChild(childEl.wrapEl);
-                    });
-
-                    nodeState.loaded = true;
-                    expanderBtn.disabled = false;
-                    toggleExpanded(true);
-                } catch (err) {
-                    var msg = (err && err.message) ? err.message : 'Failed to fetch ideas';
-                    childrenEl.innerHTML =
-                        '<div class="idea-tree-error">' +
-                        '<p>' + escapeHtml(msg) + '</p>' +
-                        '<button type="button" class="idea-tree-retry-btn">Retry</button>' +
-                        '</div>';
-                    var retryBtn = childrenEl.querySelector('.idea-tree-retry-btn');
-                    if (retryBtn) {
-                        retryBtn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            nodeState.loading = false;
-                            expanderBtn.disabled = false;
-                            // Try again.
-                            expandIfNeeded();
-                        });
-                    }
-                    toggleExpanded(true);
-                } finally {
-                    nodeState.loading = false;
-                }
-            }
-
-            expanderBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                expandIfNeeded();
-            });
-
-            labelBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                expandIfNeeded();
-            });
-
-            // Start collapsed.
-            childrenEl.hidden = true;
-            return {
-                wrapEl: wrapEl,
-                nodeState: nodeState,
-                toggleExpanded: toggleExpanded,
-                expandIfNeeded: expandIfNeeded
-            };
-        }
-
-        async function fetchGeminiItems({ keyword, parent, exclusions }) {
-            var payload = {
-                keyword: keyword,
-                parent: parent || null,
-                exclusions: exclusions || []
-            };
-
-            var resp = await fetch(ideaApiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            var data = await resp.json().catch(function () { return null; });
-            if (!resp.ok) {
-                var msg = data && data.error ? data.error : 'Gemini request failed';
-                var err = new Error(msg);
-                err.statusCode = resp.status;
-                throw err;
-            }
-
-            if (!data || !Array.isArray(data.items)) return [];
-            return data.items.slice(0, 5).filter(Boolean);
-        }
-
-        async function startIdeaTree(keywordRaw) {
-            if (!resultsEl) return;
-            var keyword = (keywordRaw || '').trim();
-            if (!keyword) {
-                resultsEl.innerHTML = '<p class="trending-topics-message">Type a keyword to generate an idea tree.</p>';
+        function renderResults(items) {
+            if (!out) return;
+            if (!items || !items.length) {
+                out.innerHTML = '<p class="trending-topics-message">No videos found. Try a broader topic.</p>';
                 return;
             }
-
-            recordViralzapSearch(keyword);
-
-            activeRunId += 1;
-            var runId = activeRunId;
-
-            showTreeLoading('Generating 5 ideas...');
-
-            var treeState = {
-                keyword: keyword,
-                seen: new Set()
-            };
-
-            try {
-                var level1 = await fetchGeminiItems({
-                    keyword: treeState.keyword,
-                    parent: null,
-                    exclusions: []
-                });
-
-                if (runId !== activeRunId) return;
-
-                // Seed the seen set for client-side dedupe.
-                var normalizedLevel1 = [];
-                level1.forEach(function (it) {
-                    var k = normalizeKey(it);
-                    if (!k || treeState.seen.has(k)) return;
-                    treeState.seen.add(k);
-                    normalizedLevel1.push(it);
-                });
-
-                resultsEl.innerHTML =
-                    '<div class="idea-tree-root">' +
-                    '<div class="trending-topics-message" style="margin-bottom:0.75rem;">keyword: ' +
-                    escapeHtml(keyword) +
-                    '</div>' +
-                    '<div class="idea-tree-level"></div>' +
-                    '</div>';
-
-                var levelEl = resultsEl.querySelector('.idea-tree-level');
-                if (!levelEl) return;
-
-                function onExpandRequest(ctx) {
-                    if (runId !== activeRunId) return Promise.resolve([]);
-                    return fetchGeminiItems({
-                        keyword: ctx.keyword,
-                        parent: ctx.parent,
-                        exclusions: ctx.exclusions
-                    });
-                }
-
-                normalizedLevel1.forEach(function (label) {
-                    var node = createTreeNodeEl(label, 1, treeState, onExpandRequest);
-                    levelEl.appendChild(node.wrapEl);
-                });
-            } catch (err) {
-                var msg = (err && err.message) ? err.message : 'Failed to generate ideas';
-                resultsEl.innerHTML =
-                    '<div class="idea-tree-error">' +
-                    '<p>' + escapeHtml(msg) + '</p>' +
-                    '<button type="button" class="idea-tree-retry-btn">Retry</button>' +
-                    '</div>';
-                var retryBtn = resultsEl.querySelector('.idea-tree-retry-btn');
-                if (retryBtn) {
-                    retryBtn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        startIdeaTree(keyword);
-                    });
-                }
-            }
-        }
-
-        // Initial empty state
-        resultsEl.innerHTML =
-            '<p class="trending-topics-message">Enter a keyword</p>';
-
-        if (searchBtn) {
-            searchBtn.addEventListener('click', function () {
-                var q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
-                startIdeaTree(q);
+            var html = '<ul class="trending-youtube-live-list">';
+            items.forEach(function (it) {
+                var vid = escapeHtml(it.videoId || '');
+                var title = escapeHtml(it.title || '');
+                var ch = escapeHtml(it.channelTitle || '');
+                var thumb = it.thumbnail ? escapeHtml(it.thumbnail) : '';
+                html +=
+                    '<li class="trending-youtube-live-item">' +
+                    (thumb
+                        ? '<a class="trending-youtube-live-thumb" href="https://www.youtube.com/watch?v=' +
+                          vid +
+                          '" target="_blank" rel="noopener noreferrer"><img src="' +
+                          thumb +
+                          '" alt="" loading="lazy" width="320" height="180"></a>'
+                        : '') +
+                    '<div class="trending-youtube-live-meta">' +
+                    '<a class="trending-youtube-live-title" href="https://www.youtube.com/watch?v=' +
+                    vid +
+                    '" target="_blank" rel="noopener noreferrer">' +
+                    title +
+                    '</a>' +
+                    '<span class="trending-youtube-live-channel">' +
+                    ch +
+                    '</span>' +
+                    '</div></li>';
             });
+            html += '</ul>';
+            out.innerHTML = html;
         }
 
-        if (searchInput) {
-            searchInput.addEventListener('keydown', function (e) {
+        function renderError(msg) {
+            if (!out) return;
+            out.innerHTML =
+                '<p class="trending-topics-message trending-youtube-live-error">' + escapeHtml(msg || 'Something went wrong.') + '</p>';
+        }
+
+        function runSearch() {
+            var q = inp ? inp.value.trim() : '';
+            if (q.length < 2) {
+                renderError('Enter at least 2 characters.');
+                return;
+            }
+            renderLoading();
+            recordViralzapsSearch(q);
+            fetch(
+                apiBaseUrl +
+                    '/api/youtube-trending-topics-search?q=' +
+                    encodeURIComponent(q) +
+                    '&regionCode=IN&maxResults=24'
+            )
+                .then(function (r) {
+                    return r.json().then(function (j) {
+                        return { ok: r.ok, json: j };
+                    });
+                })
+                .then(function (data) {
+                    if (!data.ok) {
+                        renderError(data.json && data.json.error ? data.json.error : 'Request failed');
+                        return;
+                    }
+                    var items = data.json && data.json.items ? data.json.items : [];
+                    renderResults(items);
+                })
+                .catch(function () {
+                    renderError('Could not reach the server. Start the backend and set YOUTUBE_API_KEY in .env.');
+                });
+        }
+
+        if (btn) btn.addEventListener('click', runSearch);
+        if (inp) {
+            inp.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    var q = (searchInput.value || '').trim();
-                    startIdeaTree(q);
+                    runSearch();
                 }
             });
         }
     }
 
     function showRecommendedIdeasView(container) {
-        var recent = getViralzapRecentSearches();
+        var recent = getViralzapsRecentSearches();
         container.innerHTML =
             '<div class="recommended-ideas-view">' +
             '<h2 class="recommended-ideas-title">Recommended Ideas / Topics</h2>' +
-            '<p class="recommended-ideas-subtitle">Based on your recent searches across Viralzap. We match your interests to trending topic ideas.</p>' +
+            '<p class="recommended-ideas-subtitle">Based on your recent searches across Viralzaps. We match your interests to trending topic ideas.</p>' +
             (recent.length > 0 ? '<div class="recommended-ideas-recent"><p class="recommended-ideas-recent-label">Based on your searches</p><div class="recommended-ideas-tags" id="recommended-ideas-tags"></div></div>' : '') +
             '<div class="recommended-ideas-topics"><p class="recommended-ideas-topics-label">Recommended topic ideas</p><div class="recommended-ideas-list" id="recommended-ideas-list"></div></div>' +
             '</div>';
@@ -1215,14 +1008,14 @@
             '  <div class="find-channel-badge">SHORTS CHANNELS ONLY</div>' +
             '  <div class="find-channel-panels">' +
             '    <div class="find-channel-left">' +
-            '      <span class="find-channel-recommended">RECOMMENDED</span>' +
-            '      <h3 class="find-channel-panel-title"><span class="find-channel-panel-icon">⚡</span> Real-Time Analysis</h3>' +
-            '      <p class="find-channel-panel-desc">Exclusively supported: Real-time analytics screenshots showing your current Subscriber count and view velocity. Choose which period your screenshot shows:</p>' +
-            '      <div class="find-channel-time-btns" role="group" aria-label="Time range for realtime analytics">' +
-            '        <button type="button" class="find-channel-time-btn" id="find-channel-24h" aria-pressed="false">🕐 Last 24 hours</button>' +
-            '        <button type="button" class="find-channel-time-btn active" id="find-channel-48h" aria-pressed="true">🕐 Last 48 hours</button>' +
-            '      </div>' +
-            '      <label class="find-channel-check-wrap"><input type="checkbox" class="find-channel-check" id="find-channel-date-check"> <span>📅 Specify Screenshot Date</span></label>' +
+            '      <span>Real Time Analysis</span>' +
+            // '      <h3 class="find-channel-panel-title"><span class="find-channel-panel-icon">⚡</span> Real-Time Analysis</h3>' +
+            // '      <p class="find-channel-panel-desc">Exclusively supported: Real-time analytics screenshots showing your current Subscriber count and view velocity. Choose which period your screenshot shows:</p>' +
+            // '      <div class="find-channel-time-btns" role="group" aria-label="Time range for realtime analytics">' +
+            // '        <button type="button" class="find-channel-time-btn" id="find-channel-24h" aria-pressed="false">🕐 Last 24 hours</button>' +
+            // '        <button type="button" class="find-channel-time-btn active" id="find-channel-48h" aria-pressed="true">🕐 Last 48 hours</button>' +
+            // '      </div>' +
+            // '      <label class="find-channel-check-wrap"><input type="checkbox" class="find-channel-check" id="find-channel-date-check"> <span>📅 Specify Screenshot Date</span></label>' +
             '    </div>' +
             '    <div class="find-channel-right">' +
             '      <h3 class="find-channel-upload-title">Upload Realtime Analytics</h3>' +
@@ -1813,24 +1606,24 @@
         URL.revokeObjectURL(a.href);
     }
 
-    // Settings view: Viralzap-style with tabs (Account, Notifications, Subscription, Usage)
+    // Settings view: Viralzaps-style with tabs (Account, Notifications, Subscription)
     var settingsEyeSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
     var settingsEyeOffSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
 
     var SUBSCRIPTION_PLAN_STORAGE_KEY = 'subscription_plan';
-    var TRIAL_STORAGE_KEY = 'viralzap_trial_start';
-    var BILLING_HISTORY_STORAGE_KEY = 'viralzap_billing_history';
-    var CREDITS_PURCHASED_KEY = 'viralzap_credits_purchased';
-    var CREDITS_USED_KEY = 'viralzap_credits_used';
+    var TRIAL_STORAGE_KEY = 'viralzaps_trial_start';
+    var BILLING_HISTORY_STORAGE_KEY = 'viralzaps_billing_history';
+    var CREDITS_PURCHASED_KEY = 'viralzaps_credits_purchased';
+    var CREDITS_USED_KEY = 'viralzaps_credits_used';
     var TRIAL_DAYS = 15;
-    // New plans: 15 days ₹99, 6 months ₹999, Lifetime ₹3999 (legacy starter/professional/ultimate kept for backward compat)
+    // New plans: 15 days ₹99, 6 months ₹999, Lifetime ₹19999 (legacy starter/professional/ultimate kept for backward compat)
     var SUBSCRIPTION_PLAN_NAMES = {
-        starter: 'Viralzap Starter Monthly',
-        professional: 'Viralzap Professional Monthly',
-        ultimate: 'Viralzap Ultimate Monthly',
-        plan_15d: 'Viralzap 15 Days',
-        plan_6m: 'Viralzap 6 Months',
-        plan_lifetime: 'Viralzap Lifetime'
+        starter: 'Viralzaps Starter Monthly',
+        professional: 'Viralzaps Professional Monthly',
+        ultimate: 'Viralzaps Ultimate Monthly',
+        plan_15d: 'Viralzaps 15 Days',
+        plan_6m: 'Viralzaps 6 Months',
+        plan_lifetime: 'Viralzaps Lifetime'
     };
     var SUBSCRIPTION_PLAN_PRICES = {
         starter: '2500',
@@ -1838,7 +1631,7 @@
         ultimate: '8500',
         plan_15d: '99',
         plan_6m: '999',
-        plan_lifetime: '3999'
+        plan_lifetime: '19999'
     };
     var CREDITS_BY_PLAN = {
         starter: 95,
@@ -2113,7 +1906,6 @@
             '    <button type="button" class="settings-tab active" role="tab" id="settings-tab-account" aria-selected="true" aria-controls="settings-panel-account" data-tab="account">Account</button>' +
             '    <button type="button" class="settings-tab" role="tab" id="settings-tab-notifications" aria-selected="false" aria-controls="settings-panel-notifications" data-tab="notifications">Notifications</button>' +
             '    <button type="button" class="settings-tab" role="tab" id="settings-tab-subscription" aria-selected="false" aria-controls="settings-panel-subscription" data-tab="subscription">Subscription</button>' +
-            '    <button type="button" class="settings-tab" role="tab" id="settings-tab-usage" aria-selected="false" aria-controls="settings-panel-usage" data-tab="usage">Usage</button>' +
             '  </div>' +
             '  <div class="settings-panels">' +
             '    <div class="settings-panel active" id="settings-panel-account" role="tabpanel" aria-labelledby="settings-tab-account">' +
@@ -2196,7 +1988,7 @@
             '            <span class="release-date">Jan 2025</span>' +
             '            <div class="release-body">' +
             '              <strong class="release-title">Razorpay payments</strong>' +
-            '              <p class="release-desc">Start with a 15-day free trial, then choose 15 Days (₹99), 6 Months (₹999), or Lifetime (₹3,999). Purchase credit packs from the Usage tab.</p>' +
+            '              <p class="release-desc">Start with a 15-day free trial, then choose 15 Days (₹99), 6 Months (₹999), or Lifetime (₹19,999).</p>' +
             '            </div>' +
             '          </li>' +
             '        </ul>' +
@@ -2233,82 +2025,6 @@
             '        </div>' +
             '      </div>' +
             '    </div>' +
-            '    <div class="settings-panel" id="settings-panel-usage" role="tabpanel" aria-labelledby="settings-tab-usage" hidden>' +
-            '      <div class="settings-card usage-card">' +
-            '        <h2 class="settings-card-title">Credits</h2>' +
-            '        <p class="settings-card-desc">Track your AI generation credit usage and purchase additional credits.</p>' +
-            '        <div class="usage-credits-header">' +
-            '          <span class="usage-credits-label">AVAILABLE CREDITS</span>' +
-            '          <span class="usage-plan-badge usage-plan-badge-starter" id="usage-plan-badge">STARTER</span>' +
-            '        </div>' +
-            '        <div class="usage-credits-value" id="usage-credits-value">95 / 95</div>' +
-            '        <div class="usage-credits-bar"><div class="usage-credits-bar-fill" id="usage-credits-bar-fill" style="width:100%"></div></div>' +
-            '        <p class="usage-credits-hint">If you run out of credits, you can always get more.</p>' +
-            '        <button type="button" class="settings-btn settings-btn-primary" id="usage-get-credits">+ Get Credits</button>' +
-            '      </div>' +
-            '      <div class="settings-card usage-card">' +
-            '        <h2 class="settings-card-title">Credit Packages</h2>' +
-            '        <p class="settings-card-desc">Purchase additional credits to continue generating content.</p>' +
-            '        <div class="usage-packages-grid">' +
-            '          <div class="usage-package-card">' +
-            '            <span class="usage-package-tag">POPULAR</span>' +
-            '            <div class="usage-package-name">Boost</div>' +
-            '            <div class="usage-package-credits">45 credits</div>' +
-            '            <div class="usage-package-price">₹1,500</div>' +
-            '            <button type="button" class="settings-btn usage-package-btn" data-credits="45" data-price="1500">Purchase</button>' +
-            '          </div>' +
-            '          <div class="usage-package-card usage-package-featured">' +
-            '            <span class="usage-package-tag usage-package-tag-value">BEST VALUE</span>' +
-            '            <div class="usage-package-name">Creator</div>' +
-            '            <div class="usage-package-credits">100 credits</div>' +
-            '            <div class="usage-package-price">₹3,000</div>' +
-            '            <button type="button" class="settings-btn settings-btn-primary usage-package-btn" data-credits="100" data-price="3000">Purchase</button>' +
-            '          </div>' +
-            '        </div>' +
-            '      </div>' +
-            '      <div class="settings-card usage-card">' +
-            '        <h2 class="settings-card-title">Plan Features</h2>' +
-            '        <p class="settings-card-desc">Compare what\'s included in each subscription tier.</p>' +
-            '        <div class="usage-table-wrap">' +
-            '          <table class="usage-table">' +
-            '            <thead><tr><th>FEATURE</th><th>15 DAYS</th><th>6 MONTHS</th><th>LIFETIME</th></tr></thead>' +
-            '            <tbody>' +
-            '              <tr><td>Video credits</td><td>95</td><td>175</td><td>300</td></tr>' +
-            '              <tr><td>Sora 2 video</td><td><span class="usage-check">✓</span></td><td><span class="usage-check">✓</span></td><td><span class="usage-check">✓</span></td></tr>' +
-            '              <tr><td>Image generation (daily)</td><td>25 / day</td><td>50 / day</td><td>75 / day</td></tr>' +
-            '              <tr><td>Watermark removal (daily)</td><td>5 / day</td><td>11 / day</td><td>22 / day</td></tr>' +
-            '              <tr><td>Screenshot Finder</td><td>5 credits</td><td>Unlimited</td><td>Unlimited</td></tr>' +
-            '            </tbody>' +
-            '          </table>' +
-            '        </div>' +
-            '      </div>' +
-            '      <div class="settings-card usage-card">' +
-            '        <h2 class="settings-card-title">Credit Pricing</h2>' +
-            '        <p class="settings-card-desc">Understand how credits are consumed for each generation type.</p>' +
-            '        <div class="usage-pricing-grid">' +
-            '          <div class="usage-pricing-block">' +
-            '            <h3 class="usage-pricing-heading"><svg class="usage-pricing-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Video models</h3>' +
-            '            <table class="usage-pricing-table">' +
-            '              <thead><tr><th>MODEL</th><th>CREDITS</th></tr></thead>' +
-            '              <tbody>' +
-            '                <tr><td>Sora 2</td><td>13</td></tr>' +
-            '                <tr><td>Sora 2 Pro</td><td>38</td></tr>' +
-            '                <tr><td>Sora 2 Pro HD</td><td>63</td></tr>' +
-            '              </tbody>' +
-            '            </table>' +
-            '          </div>' +
-            '          <div class="usage-pricing-block">' +
-            '            <h3 class="usage-pricing-heading"><svg class="usage-pricing-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Image generation</h3>' +
-            '            <table class="usage-pricing-table">' +
-            '              <thead><tr><th>MODEL</th><th>CREDITS PER IMAGE</th></tr></thead>' +
-            '              <tbody>' +
-            '                <tr><td>Flux & Gemini</td><td>1</td></tr>' +
-            '              </tbody>' +
-            '            </table>' +
-            '          </div>' +
-            '        </div>' +
-            '      </div>' +
-            '    </div>' +
             '  </div>' +
             '</div>';
         var tabs = container.querySelectorAll('.settings-tab');
@@ -2325,10 +2041,8 @@
                     panel.classList.toggle('active', match);
                     panel.hidden = !match;
                 });
-                if (tabId === 'usage') updateUsageCreditsUI();
             });
         });
-        updateUsageCreditsUI();
         document.querySelectorAll('.settings-theme-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 var theme = this.getAttribute('data-theme');
@@ -2408,12 +2122,12 @@
         var userEmail = (user && user.email) ? user.email : '';
         var userName = (user && user.displayName) ? user.displayName : '';
 
-        var planAmounts = { plan_15d: 9900, plan_6m: 99900, plan_lifetime: 399900 };
+        var planAmounts = { plan_15d: 9900, plan_6m: 99900, plan_lifetime: 1999900 };
         var planShortNames = { plan_15d: '15 Days', plan_6m: '6 Months', plan_lifetime: 'Lifetime' };
         var planFeatures = {
-            plan_15d: '95 video credits · 15 days access',
-            plan_6m: '175 video credits · 6 months access',
-            plan_lifetime: '300 video credits · Lifetime access'
+            plan_15d: '15 days access',
+            plan_6m: '6 months access',
+            plan_lifetime: 'Lifetime access'
         };
 
         function closePlansModal() {
@@ -2451,7 +2165,7 @@
                 '        <h3 class="plan-card-name">15 Days</h3>' +
                 '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹99</span><span class="plan-card-period">/15 days</span></div>' +
                 '      </div>' +
-                '      <p class="plan-card-features">95 video credits · 15 days access</p>' +
+                '      <p class="plan-card-features">15 days access</p>' +
                 '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Activate</button>' +
                 '    </div>' +
                 '    <div class="plan-card plan-card-featured" data-plan="plan_6m">' +
@@ -2460,15 +2174,15 @@
                 '        <h3 class="plan-card-name">6 Months</h3>' +
                 '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹999</span><span class="plan-card-period">/6 months</span></div>' +
                 '      </div>' +
-                '      <p class="plan-card-features">175 video credits · 6 months access</p>' +
+                '      <p class="plan-card-features">6 months access</p>' +
                 '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Activate</button>' +
                 '    </div>' +
                 '    <div class="plan-card" data-plan="plan_lifetime">' +
                 '      <div class="plan-card-header">' +
                 '        <h3 class="plan-card-name">Lifetime</h3>' +
-                '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹3,999</span><span class="plan-card-period"> one-time</span></div>' +
+                '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹19,999</span><span class="plan-card-period"> one-time</span></div>' +
                 '      </div>' +
-                '      <p class="plan-card-features">300 video credits · Lifetime access</p>' +
+                '      <p class="plan-card-features">Lifetime access</p>' +
                 '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Activate</button>' +
                 '    </div>' +
                 '  </div>' +
@@ -2494,11 +2208,11 @@
             fetch(config.apiBaseUrl + '/api/create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+                    body: JSON.stringify({
                     amount: amountPaise,
                     currency: 'INR',
                     receipt: 'plan_' + plan + '_' + Date.now(),
-                    notes: { plan: plan, customer_email: userEmail }
+                    notes: { plan: plan, customer_email: userEmail, customer_name: userName }
                 })
             }).then(function (r) { return r.json(); }).then(function (data) {
                 if (data.error) throw new Error(data.error);
@@ -2507,7 +2221,7 @@
                     order_id: data.orderId,
                     amount: data.amount,
                     currency: data.currency || 'INR',
-                    name: 'Viralzap',
+                    name: 'Viralzaps',
                     description: planShortNames[plan] + ' Plan (Subscription)',
                     prefill: { email: userEmail, name: userName },
                     handler: function (res) {
@@ -2516,7 +2230,8 @@
                             plan: plan,
                             planName: SUBSCRIPTION_PLAN_NAMES[plan],
                             price: SUBSCRIPTION_PLAN_PRICES[plan],
-                            activatedAt: activatedAt
+                            activatedAt: activatedAt,
+                            firebaseUid: user && user.uid ? user.uid : undefined
                         };
                         if (plan === 'plan_15d') {
                             var d15 = new Date(activatedAt);
@@ -2546,7 +2261,9 @@
                         var payload = {
                             order_id: res.razorpay_order_id || data.orderId,
                             payment_id: res.razorpay_payment_id,
-                            signature: res.razorpay_signature
+                            signature: res.razorpay_signature,
+                            customer_name: userName,
+                            customer_email: userEmail
                         };
                         fetch(config.apiBaseUrl + '/api/verify-payment', {
                             method: 'POST',
@@ -2656,94 +2373,10 @@
 
         document.getElementById('settings-cancel-subscription')?.addEventListener('click', function (e) {
             e.preventDefault();
-            var msg = 'To cancel or change your subscription, please contact us at support@viralzap.com. Your current plan remains active until the end of the billing period.';
+            var msg = 'To cancel or change your subscription, please contact us at support@viralzaps.com. Your current plan remains active until the end of the billing period.';
             if (typeof alert === 'function') alert(msg);
         });
 
-        container.querySelectorAll('.usage-package-btn').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                var credits = this.getAttribute('data-credits');
-                var price = this.getAttribute('data-price');
-                var amount = Math.round(parseFloat(price || '0') * 100);
-                if (!amount) return;
-                fetch(config.apiBaseUrl + '/api/create-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        amount: amount,
-                        currency: 'INR',
-                        receipt: 'credits_' + credits + '_' + Date.now(),
-                        notes: { credits: credits, user_email: userEmail }
-                    })
-                }).then(function (r) { return r.json(); }).then(function (data) {
-                    if (data.error) throw new Error(data.error);
-                    var orderId = data.orderId;
-                    var options = {
-                        key: config.keyId,
-                        amount: data.amount,
-                        currency: data.currency || 'INR',
-                        order_id: orderId,
-                        name: 'Viralzap',
-                        description: credits + ' Video Credits',
-                        prefill: { email: userEmail, name: userName },
-                        handler: function (res) {
-                            try {
-                                var creditsNum = parseInt(credits, 10) || 0;
-                                addBillingEntry({
-                                    type: 'credits',
-                                    description: credits + ' Video Credits',
-                                    credits: creditsNum,
-                                    amount: data.amount,
-                                    currency: data.currency || 'INR',
-                                    date: new Date().toISOString(),
-                                    paymentId: res.razorpay_payment_id,
-                                    orderId: res.razorpay_order_id || orderId,
-                                    status: 'paid'
-                                });
-                                addPurchasedCredits(creditsNum);
-                                updateUsageCreditsUI();
-                            } catch (err) {
-                                console.warn('Credit update after payment:', err);
-                            }
-                            alert('Payment successful. ' + credits + ' credits have been added to your account.');
-                            try {
-                                showPlaceholder('home');
-                                var homeLink = document.querySelector('.sidebar-link[data-page="home"]');
-                                if (homeLink && typeof setActiveNav === 'function') setActiveNav(homeLink, 'link');
-                            } catch (navErr) {
-                                console.warn('Navigate to home after credits:', navErr);
-                            }
-                            var payload = {
-                                order_id: res.razorpay_order_id || orderId,
-                                payment_id: res.razorpay_payment_id,
-                                signature: res.razorpay_signature
-                            };
-                            fetch(config.apiBaseUrl + '/api/verify-payment', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            }).then(function (v) { return v.json(); }).then(function (v) {
-                                if (!v.verified) console.warn('Payment verification pending. Payment ID:', res.razorpay_payment_id);
-                            }).catch(function (err) {
-                                console.warn('Verify request failed (payment succeeded on Razorpay):', err);
-                            });
-                        }
-                    };
-                    var rzp = new Razorpay(options);
-                    rzp.on('payment.failed', function (res) {
-                        alert('Payment failed: ' + (res.error && res.error.description ? res.error.description : 'Unknown error'));
-                    });
-                    rzp.open();
-                }).catch(function (err) {
-                    alert('Could not start checkout: ' + (err.message || 'Network error'));
-                });
-            });
-        });
-
-        document.getElementById('usage-get-credits')?.addEventListener('click', function () {
-            var firstCard = container.querySelector('.usage-package-card');
-            if (firstCard) firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
     }
 
     // Home view: YouTube-style category tabs + video grid (default on load)
@@ -2817,7 +2450,7 @@
                 var input = document.getElementById('shorts-search-input');
                 var q = (input && input.value) ? input.value.trim() : '';
                 if (!q) return;
-                recordViralzapSearch(q);
+                recordViralzapsSearch(q);
                 searchYouTubeShorts(q, resultsEl);
             });
         }
@@ -2848,7 +2481,7 @@
                 var input = document.getElementById('longform-search-input');
                 var q = (input && input.value) ? input.value.trim() : '';
                 if (!q) return;
-                recordViralzapSearch(q);
+                recordViralzapsSearch(q);
                 searchYouTubeLongform(q, resultsEl);
             });
         }
@@ -3087,7 +2720,7 @@
                 var q = (input && input.value) ? input.value.trim() : '';
                 if (!q) return;
                 lastViralQuery = q;
-                recordViralzapSearch(q);
+                recordViralzapsSearch(q);
                 runViralSearch();
             });
         }
@@ -3341,7 +2974,7 @@
                 var raw = (input && input.value) ? input.value.trim() : '';
                 if (!raw) return;
                 lastSearchRaw = raw;
-                recordViralzapSearch(raw);
+                recordViralzapsSearch(raw);
                 var query = resolveChannelQuery(raw);
                 searchYouTubeChannels(query, currentMode, resultsEl);
             });
@@ -3570,10 +3203,10 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
                         var stats = statsMap[id] || {};
                         var viewCount = stats.viewCount !== undefined ? stats.viewCount : 0;
                         var viewsStr = viewCount ? formatCount(viewCount) + ' views' : '';
-                        var viewsBadge = viewCount ? '<span class="viral-card-badge">' + escapeHtml(formatCount(viewCount)) + ' views</span>' : '';
+                        // var viewsBadge = viewCount ? '<span class="viral-card-badge">' + escapeHtml(formatCount(viewCount)) + ' views</span>' : '';
                         html += '<a class="viral-card viral-discovery-card" href="' + link + '" target="_blank" rel="noopener noreferrer">' +
                             '<div class="viral-card-thumb">' +
-                            (viewsBadge ? '<span class="viral-card-badge-wrap">' + viewsBadge + '</span>' : '') +
+                            // (viewsBadge ? '<span class="viral-card-badge-wrap">' + viewsBadge + '</span>' : '') +
                             '<img src="' + escapeHtml(thumb) + '" alt="" loading="lazy"></div>' +
                             '<div class="viral-card-body">' +
                             '<h3 class="viral-card-title">' + escapeHtml(title) + '</h3>' +
@@ -3798,8 +3431,8 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
         return div.innerHTML;
     }
 
-    // Picked by Viralzap: curated video IDs (hand-picked)
-    var PICKED_BY_VIRALZAP_VIDEO_IDS = [
+    // Picked by Viralzaps: curated video IDs (hand-picked)
+    var PICKED_BY_VIRALZAPS_VIDEO_IDS = [
         'dQw4w9WgXcQ',
         '9bZkp7q19f0',
         'kJQP7kiw5Fk',
@@ -3810,15 +3443,15 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
         'jNQXAC9IVRw'
     ];
 
-    function renderPickedByViralzapView(resultsEl) {
+    function renderPickedByViralzapsView(resultsEl) {
         if (!resultsEl) return;
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="viral-message viral-error">Add your YouTube API key in <code>youtube-config.js</code> to load Picked by Viralzap.</p>';
+            resultsEl.innerHTML = '<p class="viral-message viral-error">Add your YouTube API key in <code>youtube-config.js</code> to load Picked by Viralzaps.</p>';
             return;
         }
-        resultsEl.innerHTML = '<p class="viral-message viral-loading">Loading Picked by Viralzap...</p>';
+        resultsEl.innerHTML = '<p class="viral-message viral-loading">Loading Picked by Viralzaps...</p>';
         var url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=' +
-            PICKED_BY_VIRALZAP_VIDEO_IDS.join(',') + '&key=' + encodeURIComponent(YOUTUBE_API_KEY);
+            PICKED_BY_VIRALZAPS_VIDEO_IDS.join(',') + '&key=' + encodeURIComponent(YOUTUBE_API_KEY);
         fetch(url)
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -3833,7 +3466,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
                     resultsEl.innerHTML = '<p class="viral-message">No picked videos to show.</p>';
                     return;
                 }
-                var html = '<p class="picked-by-viralzap-intro">Hand-picked by Viralzap</p><div class="viral-grid">';
+                var html = '<p class="picked-by-viralzaps-intro">Hand-picked by Viralzaps</p><div class="viral-grid">';
                 items.forEach(function (item) {
                     var id = item.id;
                     var snip = item.snippet || {};
@@ -3856,7 +3489,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
                 resultsEl.innerHTML = html;
             })
             .catch(function (err) {
-                resultsEl.innerHTML = '<p class="viral-message viral-error">Failed to load Picked by Viralzap. Check your connection and API key.</p>';
+                resultsEl.innerHTML = '<p class="viral-message viral-error">Failed to load Picked by Viralzaps. Check your connection and API key.</p>';
             });
     }
 
@@ -3958,7 +3591,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
         } else if (mode === 'underratedChannels') {
             searchQ = 'shorts+channel';
             maxChannels = 25;
-        } else if (mode === 'recentlyAddedToViralzap') {
+        } else if (mode === 'recentlyAddedToViralzaps') {
             searchQ = 'shorts+channel';
             maxChannels = 20;
         }
@@ -4053,7 +3686,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
                                         }
                                         results.sort(function (a, b) { return underratedScore(b) - underratedScore(a); });
                                         results = results.slice(0, 12);
-                                    } else if (mode === 'recentlyAddedToViralzap') {
+                                    } else if (mode === 'recentlyAddedToViralzaps') {
                                         results.sort(function (a, b) {
                                             var atA = a.channel.latestVideoAt || '';
                                             var atB = b.channel.latestVideoAt || '';
@@ -4078,11 +3711,11 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
         var loadingText = 'Loading trending channels...';
         if (mode === 'highViewsLowUploads') loadingText = 'Loading high views, low uploads channels...';
         else if (mode === 'underratedChannels') loadingText = 'Loading underrated channels...';
-        else if (mode === 'recentlyAddedToViralzap') loadingText = 'Loading recently added to Viralzap...';
+        else if (mode === 'recentlyAddedToViralzaps') loadingText = 'Loading recently added to Viralzaps...';
         var emptyText = 'No trending channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
         if (mode === 'highViewsLowUploads') emptyText = 'No channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
         else if (mode === 'underratedChannels') emptyText = 'No underrated channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
-        else if (mode === 'recentlyAddedToViralzap') emptyText = 'No recently added channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
+        else if (mode === 'recentlyAddedToViralzaps') emptyText = 'No recently added channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
         resultsEl.innerHTML = '<div class="trending-channels-loading">' + escapeHtml(loadingText) + '</div>';
         loadChannelsByMode(mode)
             .then(function (channels) {

@@ -1,4 +1,4 @@
-# Viralzap Backend (Razorpay)
+# Viralzaps Backend (Razorpay)
 
 This server handles **Razorpay** payments for:
 
@@ -30,12 +30,30 @@ This server handles **Razorpay** payments for:
    PORT=4000
    ```
 
-4. **Frontend config**  
+4. **Google Sheet — payment log (optional)**  
+   After a successful Razorpay verification, the backend appends a row to your [payment spreadsheet](https://docs.google.com/spreadsheets/d/1DvuVVXrK_pIgflAWImM497l0Pwe_h-EJm20neNZv0PM/edit) (timestamp, name, email, payment ID, amount, etc.).
+
+   **If your organization blocks service account keys** (`iam.disableServiceAccountKeyCreation`), use **Google Apps Script** (no JSON key):
+
+   - Open that spreadsheet → **Extensions** → **Apps Script**.
+   - Paste the code from `backend/google-apps-script-payment-webhook.gs`.
+   - **Project Settings** (gear) → **Script properties** → add property `WEBHOOK_SECRET` with a long random string (e.g. 32+ characters).
+   - **Deploy** → **New deployment** → type **Web app** → **Execute as: Me** → **Who has access: Anyone** → **Deploy** and copy the **Web app URL** (ends with `/exec`).
+   - In `backend/.env`:  
+     `GOOGLE_APPS_SCRIPT_WEBHOOK_URL=https://script.google.com/macros/s/.../exec`  
+     `GOOGLE_APPS_SCRIPT_WEBHOOK_SECRET=` (same value as `WEBHOOK_SECRET` in Apps Script)
+
+   **Alternative — service account JSON** (only if your org allows key creation):
+
+   - Enable **Google Sheets API**, create a service account, download JSON, share the sheet with the service account `client_email` (**Editor**).
+   - Set `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_SERVICE_ACCOUNT_JSON` in `.env`. Optional: `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB`.
+
+5. **Frontend config**  
    In the project root, edit `razorpay-config.js`:
    - Set `keyId` to your Razorpay **Key ID** (same as above).
    - Set `apiBaseUrl` to your backend URL (e.g. `http://localhost:4000` for local dev).
 
-5. **Run backend**
+6. **Run backend**
 
    ```bash
    cd backend
@@ -49,7 +67,7 @@ This server handles **Razorpay** payments for:
 
 - `POST /api/create-order` – Body: `{ amount, currency?, receipt?, notes? }`. Returns `{ orderId, amount, currency }`.
 - `POST /api/create-subscription` – Body: `{ planKey: 'starter'|'professional'|'ultimate', customer_email?, customer_name? }`. Returns `{ subscriptionId, planName }`.
-- `POST /api/verify-payment` – Body: `{ order_id, payment_id, signature }`. Returns `{ verified }`.
-- `POST /api/verify-subscription-payment` – Body: `{ subscription_id, payment_id, signature }`. Returns `{ verified }`.
+- `POST /api/verify-payment` – Body: `{ order_id, payment_id, signature, customer_name?, customer_email? }`. Returns `{ verified }`. On success, appends a row to the configured Google Sheet when credentials are set.
+- `POST /api/verify-subscription-payment` – Body: `{ subscription_id, payment_id, signature, customer_name?, customer_email? }`. Returns `{ verified }`. Same sheet logging when configured.
 
 **Note:** In production, use **Razorpay Webhooks** to update subscription status (activated, charged, cancelled) and keep your database in sync. This backend only creates orders/subscriptions and verifies the first payment on the client.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viralzap - The Easiest Way to Research and Create Viral Videos</title>
+    <title>Viralzaps - The Easiest Way to Research and Create Viral Videos</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,22 +14,24 @@
     <nav class="navbar">
         <div class="container">
             <div class="nav-content">
-                <div class="logo">
-                    <span class="logo-text">Viralzap</span>
-                </div>
+                <a href="index.html" class="logo" aria-label="Viralzaps home">
+                    <img src="assets/logo-viralzaps.svg" alt="" class="logo-img" width="168" height="32" decoding="async"/>
+                </a>
                 <ul class="nav-links">
                     <li><a href="#features">Features</a></li>
-                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#get-started">Pricing</a></li>
                     <li><a href="#faq">FAQ</a></li>
-                    <li><a href="#feedback">Feedback</a></li>
-                    <li><a href="#affiliates">Affiliates</a></li>
                 </ul>
                 <div class="nav-actions">
                     <button class="theme-toggle" aria-label="Toggle dark mode" id="theme-toggle">
-                        <span class="theme-icon">🌙</span>
+                        <span class="theme-icon" aria-hidden="true">
+                            <svg class="landing-icon theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+                            <svg class="landing-icon theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+                        </span>
                     </button>
-                    <a href="#login" class="btn-link">Login</a>
-                    <a href="#get-started" class="btn-primary">Get Started</a>
+                    <!-- <a href="#login" class="btn-primary" id="nav-cta">Try Viralzaps</a> -->
+                    <a href="#login" class="btn-primary">Try Viralzaps<svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+
                 </div>
                 <button class="mobile-menu-toggle" aria-label="Toggle menu">
                     <span></span>
@@ -44,17 +46,14 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <div class="hero-badge">
-                    <span>New</span> Unlimited ElevenLabs Voice Generator Live
-                </div>
                 <h1 class="hero-title">
                     The Easiest Way to Research<br>
                     and Create Viral Videos
                 </h1>
                 <p class="hero-subtitle">
-                    Discover trending niches, analyze winning channels, and create videos in seconds
+                    Research what’s working on YouTube - trending topics, viral videos, similar channels, and more - in one dashboard.
                 </p>
-                <a href="#get-started" class="btn-hero">Try Viralzap Now →</a>
+                <a href="#login" class="btn-hero">Try Viralzaps Now <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             </div>
             <div class="hero-image">
                 <div class="dashboard-mockup">
@@ -134,111 +133,22 @@
                 <!-- Feature 3 -->
                 <div class="feature-card">
                     <div class="feature-number">3</div>
-                    <h3 class="feature-title">Create Content</h3>
-                    <p class="feature-description">Use our video creation tools to produce optimized, high-retention videos in seconds.</p>
+                    <h3 class="feature-title">Scrape, find &amp; analyze</h3>
+                    <p class="feature-description">Pull titles, tags, and metadata with the YouTube Scraper, identify channels from screenshots with Find Channel, and review performance in Analytics.</p>
                     <div class="creation-steps">
                         <div class="step-item">
-                            <span class="check-icon">✓</span>
-                            <span>Visuals Generated</span>
+                            <span class="check-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
+                            <span>YouTube Scraper</span>
                         </div>
                         <div class="step-item">
-                            <span class="check-icon">✓</span>
-                            <span>Voiceover Ready</span>
+                            <span class="check-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
+                            <span>Find Channel (OCR)</span>
                         </div>
                         <div class="step-item">
-                            <span class="check-icon">✓</span>
-                            <span>Video Exported</span>
+                            <span class="check-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
+                            <span>Usage &amp; credits</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- One Platform Section -->
-    <section class="platform-section">
-        <div class="container">
-            <h2 class="section-title">One Platform, Endless Possibilities</h2>
-            <p class="section-subtitle">From research to production, Viralzap handles every step of your creative workflow.</p>
-            
-            <div class="platform-features">
-                <!-- Deep Research -->
-                <div class="platform-feature">
-                    <div class="platform-feature-content">
-                        <h3 class="platform-feature-title">Uncover Hidden Niches</h3>
-                        <p class="platform-feature-description">Stop guessing. Use advanced filters and AI-driven keyword suggestions to find low-competition, high-demand opportunities instantly.</p>
-                        <ul class="platform-feature-list">
-                            <li>Advanced Filter Logic</li>
-                            <li>Keyword Gap Analysis</li>
-                            <li>Real-time View Tracking</li>
-                        </ul>
-                        <div class="filter-example">
-                            <div class="filter-tag">"History Documentaries"</div>
-                            <div class="filter-conditions">
-                                <span>views > 100k</span>
-                                <span>age < 30d</span>
-                                <span>competition: low</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="platform-feature-icon">🔍</div>
-                </div>
-
-                <!-- Video Generation -->
-                <div class="platform-feature">
-                    <div class="platform-feature-content">
-                        <h3 class="platform-feature-title">Create Cinematic Sora 2 Videos</h3>
-                        <p class="platform-feature-description">Generate stunning, consistent videos. Use our Image Generator to create perfect reference styles, then bring them to life with Sora 2.</p>
-                        <ul class="platform-feature-list">
-                            <li>Sora 2 Integration</li>
-                            <li>Reference Image Support</li>
-                            <li>Unlimited Watermark Removal</li>
-                        </ul>
-                        <div class="video-generator">
-                            <div class="prompt-box">
-                                <div class="prompt-text">Cinematic FPV drone shot of a futuristic neon city...</div>
-                                <div class="prompt-meta">
-                                    <span>Refs: 2</span>
-                                    <button class="generate-btn">Generate</button>
-                                </div>
-                            </div>
-                            <div class="credit-info">Prompt Estimator 45 Credits</div>
-                        </div>
-                    </div>
-                    <div class="platform-feature-icon">🎥</div>
-                </div>
-
-                <!-- Unlimited Voice -->
-                <div class="platform-feature">
-                    <div class="platform-feature-content">
-                        <h3 class="platform-feature-title">Produce Ultra-Longform Content</h3>
-                        <p class="platform-feature-description">Generate unlimited, human-quality voiceovers for documentaries and video essays of any length.</p>
-                        <ul class="platform-feature-list">
-                            <li>Unlimited Voiceover Generation</li>
-                            <li>Multiple Languages Supported</li>
-                            <li>Elevenlabs Voice Model</li>
-                        </ul>
-                        <div class="voiceover-player">
-                            <div class="player-header">
-                                <span class="player-icon">🎵</span>
-                                <span class="player-title">Documentary_Voiceover.mp3</span>
-                                <span class="player-duration">45:20</span>
-                            </div>
-                            <div class="player-waveform">
-                                <div class="wave-bar"></div>
-                                <div class="wave-bar"></div>
-                                <div class="wave-bar"></div>
-                                <div class="wave-bar"></div>
-                                <div class="wave-bar"></div>
-                            </div>
-                            <div class="player-text">
-                                <p>"In the early days of the Roman Empire..."</p>
-                                <p>"The legions marched across..."</p>
-                                <p>"Bringing with them a new era of..."</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="platform-feature-icon">🎤</div>
                 </div>
             </div>
         </div>
@@ -247,319 +157,114 @@
     <!-- Why Choose Section -->
     <section class="why-choose-section">
         <div class="container">
-            <h2 class="section-title">Why Choose Viralzap?</h2>
-            <p class="section-subtitle">Powerful tools designed to help you dominate your niche and grow faster.</p>
+            <h2 class="section-title">Why Choose Viralzaps?</h2>
+            <p class="section-subtitle">Everything in the app maps to real YouTube Data API workflows—no fake “AI generators” on the side.</p>
             
             <div class="tools-grid">
                 <div class="tool-card">
-                    <div class="tool-icon">📈</div>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg></div>
+                    <h4 class="tool-title">Home &amp; channels</h4>
+                    <p class="tool-description">Browse Shorts and Longform feeds tailored for research.</p>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg></div>
                     <h4 class="tool-title">Viral Videos</h4>
-                    <p class="tool-description">Track breakout videos in real-time and uncover the patterns behind their success.</p>
+                    <p class="tool-description">Track breakout videos and spot patterns in your niche.</p>
                 </div>
                 <div class="tool-card">
-                    <div class="tool-icon">🔍</div>
-                    <h4 class="tool-title">Find Channel</h4>
-                    <p class="tool-description">Instantly analyze screenshots to find the channel behind the content.</p>
-                </div>
-                <div class="tool-card">
-                    <div class="tool-icon">👥</div>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg></div>
                     <h4 class="tool-title">Similar Channels</h4>
-                    <p class="tool-description">Discover competitors and analyze their growth strategies.</p>
+                    <p class="tool-description">Find channels like yours and compare positioning.</p>
                 </div>
                 <div class="tool-card">
-                    <div class="tool-icon">📊</div>
-                    <h4 class="tool-title">Channel Trends</h4>
-                    <p class="tool-description">Monitor daily performance metrics and spot emerging trends.</p>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></div>
+                    <h4 class="tool-title">Trending Topics</h4>
+                    <p class="tool-description">Topic ideas powered by your API stack (Gemini in the dashboard).</p>
                 </div>
                 <div class="tool-card">
-                    <div class="tool-icon">⚙️</div>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg></div>
                     <h4 class="tool-title">YouTube Scraper</h4>
-                    <p class="tool-description">Extract transcripts, tags, and SEO data in seconds.</p>
+                    <p class="tool-description">Extract titles, tags, and metadata for research.</p>
                 </div>
                 <div class="tool-card">
-                    <div class="tool-icon">🖼️</div>
-                    <h4 class="tool-title">Image Generation</h4>
-                    <p class="tool-description">Create high-quality thumbnails with AI tools.</p>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg></div>
+                    <h4 class="tool-title">Find Channel</h4>
+                    <p class="tool-description">Use screenshots and OCR to identify a channel.</p>
                 </div>
                 <div class="tool-card">
-                    <div class="tool-icon">🎬</div>
-                    <h4 class="tool-title">Video Generation</h4>
-                    <p class="tool-description">Generate video content from scripts to streamline production.</p>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div>
+                    <h4 class="tool-title">Analytics</h4>
+                    <p class="tool-description">Review performance and usage in one place.</p>
                 </div>
                 <div class="tool-card">
-                    <div class="tool-icon">🎙️</div>
-                    <h4 class="tool-title">Voice Generation</h4>
-                    <p class="tool-description">Produce Elevenlabs voiceovers using our integrated studio.</p>
+                    <div class="tool-icon" aria-hidden="true"><svg class="landing-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg></div>
+                    <h4 class="tool-title">Recommended Ideas</h4>
+                    <p class="tool-description">Topic suggestions tied to your recent searches.</p>
                 </div>
             </div>
 
-            <div class="all-tools-cta">
-                <h3>All Tools, One Platform</h3>
-                <p>Stop switching between multiple apps. Viralzap brings niche finding, competitive analysis, and content creation into one seamless workflow.</p>
-                <a href="#get-started" class="btn-primary">Start Growing Now ↗</a>
-            </div>
-
-            <div class="integrations">
-                <span>🗣️ ElevenLabs</span>
-                <span>🎥 Sora</span>
-                <span>🕵️ YT Incognito</span>
-                <span>🍌 Nano Banana</span>
-                <span>✨ Gemini</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials-section">
-        <div class="container">
-            <h2 class="section-title">Trusted by Creators Worldwide</h2>
-            <p class="section-subtitle">Join a growing community of creators who choose AViralzaplgrow for its data accuracy and speed.</p>
-            
-            <div class="testimonials-slider">
-                <div class="testimonial-card active">
-                    <div class="testimonial-content">
-                        <p class="testimonial-text">"Viralzap completely changed how I research. I found a gap in the Minecraft niche and hit 100k views in my first week. It feels like cheating."</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar"></div>
-                            <div class="author-info">
-                                <div class="author-name">Alex K.</div>
-                                <div class="author-title">Gaming Creator (150k+ Subs)</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <p class="testimonial-text">"The Sora 2 tools are insane. I went from spending 10 hours on a video to just 30 minutes, and the quality is actually better."</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar"></div>
-                            <div class="author-info">
-                                <div class="author-name">Sarah J.</div>
-                                <div class="author-title">Documentary Channel (500k+ Subs)</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <p class="testimonial-text">"Finally, a tool that actually understands viral metrics. The channel trends feature helps me spot waves before anyone else."</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar"></div>
-                            <div class="author-info">
-                                <div class="author-name">Marcus R.</div>
-                                <div class="author-title">Faceless Cash Cow Empire</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="testimonial-nav">
-                <button class="testimonial-prev">Previous</button>
-                <div class="testimonial-dots">
-                    <span class="dot active" data-slide="0"></span>
-                    <span class="dot" data-slide="1"></span>
-                    <span class="dot" data-slide="2"></span>
-                </div>
-                <button class="testimonial-next">Next</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Credit Breakdown Section -->
-    <section class="credits-section">
-        <div class="container">
-            <h2 class="section-title">Complete Credit Breakdown</h2>
-            <p class="section-subtitle">Full transparency on costs, limits, and top-ups for every tool.</p>
-            
-            <div class="credits-grid">
-                <!-- Video Generation -->
-                <div class="credit-card">
-                    <h3 class="credit-title">Video Generation</h3>
-                    <p class="credit-subtitle">Sora 2 & Pro</p>
-                    <div class="credit-cost">
-                        <div class="cost-item">
-                            <span class="cost-label">Sora 2 <span class="recommended">RECOMMENDED</span></span>
-                            <span class="cost-value">13 credits</span>
-                        </div>
-                        <div class="cost-item">
-                            <span class="cost-label">Sora 2 Pro</span>
-                            <span class="cost-value">38 credits</span>
-                        </div>
-                        <div class="cost-item">
-                            <span class="cost-label">Sora 2 Pro HD</span>
-                            <span class="cost-value">63 credits</span>
-                        </div>
-                    </div>
-                    <div class="credit-included">
-                        <p><strong>Included Monthly</strong></p>
-                        <ul>
-                            <li>Starter Plan: 95 credits</li>
-                            <li>Professional: 175 credits</li>
-                            <li>Ultimate: 300 credits</li>
-                        </ul>
-                    </div>
-                    <div class="credit-topup">
-                        <p><strong>Top-Up Options (Never Expire)</strong></p>
-                        <div class="topup-options">
-                            <div class="topup-item">
-                                <span>250 Credits ~19 videos</span>
-                                <span class="topup-price">$9.99</span>
-                            </div>
-                            <div class="topup-item">
-                                <span>750 Credits ~57 videos</span>
-                                <span class="topup-price">$27.99</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Image Generation -->
-                <div class="credit-card">
-                    <h3 class="credit-title">Image Generation</h3>
-                    <p class="credit-subtitle">Flux & Gemini Models</p>
-                    <div class="credit-cost">
-                        <div class="cost-item">
-                            <span class="cost-label">Cost Per Image</span>
-                            <span class="cost-value">1 Credit</span>
-                        </div>
-                    </div>
-                    <div class="credit-included">
-                        <p><strong>Daily Free Limit (Resets 24h)</strong></p>
-                        <ul>
-                            <li>Starter Plan: 25 images / day</li>
-                            <li>Professional: 50 images / day</li>
-                            <li>Ultimate: 75 images / day</li>
-                        </ul>
-                    </div>
-                    <div class="credit-topup">
-                        <p><strong>Top-Up Options (Never Expire)</strong></p>
-                        <div class="topup-options">
-                            <div class="topup-item">
-                                <span>100 Credits 100 images</span>
-                                <span class="topup-price">$5.00</span>
-                            </div>
-                            <div class="topup-item">
-                                <span>300 Credits 300 images</span>
-                                <span class="topup-price">$12.99</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Watermark Removal -->
-                <div class="credit-card">
-                    <h3 class="credit-title">Watermark Removal</h3>
-                    <p class="credit-subtitle">Sora Video Cleaning</p>
-                    <div class="credit-cost">
-                        <div class="cost-item">
-                            <span class="cost-label">Cost Per Removal</span>
-                            <span class="cost-value">1 Credit</span>
-                        </div>
-                    </div>
-                    <div class="credit-included">
-                        <p><strong>Daily Free Limit (Resets 24h)</strong></p>
-                        <ul>
-                            <li>Starter Plan: 5 removals / day</li>
-                            <li>Professional: 11 removals / day</li>
-                            <li>Ultimate: 22 removals / day</li>
-                        </ul>
-                    </div>
-                    <div class="credit-topup">
-                        <p><strong>Top-Up Options (Never Expire)</strong></p>
-                        <div class="topup-options">
-                            <div class="topup-item">
-                                <span>180 Credits 180 removals</span>
-                                <span class="topup-price">$9.99</span>
-                            </div>
-                            <div class="topup-item">
-                                <span>450 Credits 450 removals</span>
-                                <span class="topup-price">$24.99</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- <div class="all-tools-cta">
+                <h3>Sign in and go</h3>
+                <p>Use Firebase email/password or Google, then open the dashboard for full access.</p>
+                <a href="#login" class="btn-primary">View plans <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
+            </div> -->
         </div>
     </section>
 
     <!-- Pricing Section -->
-    <section class="pricing-section" id="pricing">
+    <section class="pricing-section" id="get-started">
         <div class="container">
-            <h2 class="section-title">Explore all plans</h2>
-            <p class="section-subtitle">Choose the perfect plan for your content creation journey.</p>
-            
-            <div class="billing-toggle">
-                <span class="toggle-label">Monthly</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="annual-toggle">
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">Annual <span class="save-badge">Save 30%</span></span>
-            </div>
+            <h2 class="section-title">Plans &amp; credits</h2>
+            <p class="section-subtitle">Pay with Razorpay (INR) below—the same plans as in the app. Credits power API-heavy actions.</p>
 
             <div class="pricing-grid">
-                <!-- Starter Plan -->
                 <div class="pricing-card">
-                    <h3 class="plan-name">Starter</h3>
+                    <h3 class="plan-name">15 Days</h3>
                     <div class="plan-price">
-                        <span class="price-amount">$25</span>
-                        <span class="price-period">/mo</span>
+                        <span class="price-amount">₹99</span>
                     </div>
-                    <p class="plan-billing">Billed monthly at $25</p>
-                    <a href="#get-started" class="btn-plan">Get access now</a>
+                    <p class="plan-billing">Short access window to try everything</p>
+                    <a href="#login" class="btn-plan">Sign in to subscribe</a>
                     <ul class="plan-features">
-                        <li>Unlimited Access to Niche Finder</li>
-                        <li>Unlimited Access to Image Generator</li>
-                        <li>Unlimited Access to Voice Generator</li>
-                        <li>5 Screenshot Finder Credits</li>
-                        <li>95 Credits for Video Generation Monthly</li>
-                        <li>Discord and Email support</li>
+                        <li>Full dashboard access</li>
+                        <li>Includes fortnight credit allocation (see app)</li>
+                        <li>Secure payment in Settings</li>
                     </ul>
                 </div>
 
-                <!-- Professional Plan -->
                 <div class="pricing-card featured">
-                    <div class="featured-badge">Most Popular</div>
-                    <h3 class="plan-name">Professional</h3>
+                    <div class="featured-badge">Popular</div>
+                    <h3 class="plan-name">6 Months</h3>
                     <div class="plan-price">
-                        <span class="price-amount">$45</span>
-                        <span class="price-period">/mo</span>
+                        <span class="price-amount">₹999</span>
                     </div>
-                    <p class="plan-billing">Billed monthly at $45</p>
-                    <a href="#get-started" class="btn-plan">Get access now</a>
+                    <p class="plan-billing">Best value for ongoing research</p>
+                    <a href="#login" class="btn-plan">Sign in to subscribe</a>
                     <ul class="plan-features">
-                        <li>Unlimited Access to Niche Finder</li>
-                        <li>Unlimited Access to Image Generator</li>
-                        <li>Unlimited Access to Voice Generator</li>
-                        <li>Unlimited Screenshot Finder Credits</li>
-                        <li>175 Credits for Video Generation Monthly</li>
-                        <li>Priority Discord and Email support</li>
+                        <li>Full dashboard access</li>
+                        <li>Higher included credits than 15-day</li>
+                        <li>Renews per plan terms in app</li>
                     </ul>
                 </div>
 
-                <!-- Ultimate Plan -->
                 <div class="pricing-card">
-                    <h3 class="plan-name">Ultimate</h3>
+                    <h3 class="plan-name">Lifetime</h3>
                     <div class="plan-price">
-                        <span class="price-amount">$80</span>
-                        <span class="price-period">/mo</span>
+                        <span class="price-amount">₹19999</span>
                     </div>
-                    <p class="plan-billing">Billed monthly at $80</p>
-                    <a href="#get-started" class="btn-plan">Get access now</a>
+                    <p class="plan-billing">One-time access where offered</p>
+                    <a href="#login" class="btn-plan">Sign in to subscribe</a>
                     <ul class="plan-features">
-                        <li>Unlimited Access to Niche Finder</li>
-                        <li>Unlimited Access to Image Generator</li>
-                        <li>Unlimited Access to Voice Generator</li>
-                        <li>Unlimited Screenshot Finder Credits</li>
-                        <li>300 Credits for Video Generation Monthly</li>
-                        <li>Priority Discord and Email support</li>
+                        <li>Long-term access to the toolset</li>
+                        <li>Credit rules as shown in Settings</li>
+                        <li>Same core features as other plans</li>
                     </ul>
                 </div>
             </div>
 
             <div class="pricing-note">
-                <p><strong>Need more power?</strong></p>
-                <p>Heavy user? You can purchase additional <strong>video generation credits</strong> directly in the studio anytime. Top-ups start at just <strong>$9.99</strong> and never expire.</p>
+                <p><strong>Need more credits?</strong></p>
+                <p>You can buy credit packs inside the dashboard after checkout. Exact amounts and Razorpay flows are in <strong>Settings → Subscription / Usage</strong>.</p>
             </div>
         </div>
     </section>
@@ -568,384 +273,82 @@
     <section class="faq-section" id="faq">
         <div class="container">
             <h2 class="section-title">Your Questions, Answered</h2>
-            <p class="section-subtitle">Find everything you need to know about Viralzap, from viral discovery to content creation.</p>
+            <p class="section-subtitle">Straight answers about the real app—not marketing demos.</p>
             
             <div class="faq-list">
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>What is Viralzap?</span>
+                        <span>What is Viralzaps?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Viralzap is an all-in-one platform for YouTube growth. It combines viral video research, competitor analysis, and AI content creation tools to help you find winning niches and produce high-retention videos faster.</p>
+                        <p>Viralzaps is a YouTube research dashboard: viral videos, similar channels, trending topics, a scraper, Find Channel (OCR), analytics, and account settings with credits and billing.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>How do credits and limits work?</span>
+                        <span>How do credits work?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p><strong>Video Generation:</strong> Uses monthly credits (95, 175, or 300) included in your plan. Sora 2 videos cost 13-38 credits based on duration.</p>
-                        <p><strong>Images & Watermark Removal:</strong> Include daily limits (e.g., 50 images/day) that reset every 24h. If you need more, you can purchase separate top-up credits that never expire.</p>
+                        <p>Credits cover API-heavy actions in the app. Your plan (or trial) includes an allocation; you can buy more credit packs in the dashboard. Exact balances and history appear under <strong>Settings → Usage</strong>.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>How does the Niche Finder work?</span>
+                        <span>Do I need API keys?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Our algorithms track millions of YouTube channels in real-time. We analyze growth rates, view velocity, and engagement metrics to identify trending niches and breakout channels before they become saturated.</p>
+                        <p>Yes. You add your <strong>YouTube Data API v3</strong> key in <code>youtube-config.js</code>. Trending Topics may use your backend <strong>Gemini</strong> key. Payments use <strong>Razorpay</strong> through the server—configure keys as described in the project docs.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>Can I generate videos directly?</span>
+                        <span>How do I sign in?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Yes! Our Creation Studio includes AI tools for scriptwriting, image generation, and voiceovers (via ElevenLabs). You can go from a raw idea to a production-ready asset without leaving the dashboard.</p>
+                        <p>Authentication is <strong>Firebase</strong> (email/password or Google). After sign-in you’re redirected to <code>dashboard.html</code>. Opening the dashboard as a local <code>file://</code> page won’t work for auth—use a local server.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>Do you support both Shorts and Longform?</span>
+                        <span>Do you support Shorts and Longform?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Absolutely. Viralzap provides separate, optimized tools and analytics for both YouTube Shorts and Longform content, ensuring you have the right data for your specific strategy.</p>
+                        <p>Yes. The Channels section has separate Shorts and Longform views.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>Is the data real-time?</span>
+                        <span>Where does the data come from?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Yes, we update our databases continuously. The "Channel Trends" and "Viral Videos" features show you what is happening on YouTube right now, not last week.</p>
+                        <p>Public YouTube Data API responses (subject to Google’s quotas and latency). It’s not a private scrape of “all of YouTube,” but what the API returns for your queries.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        <span>Can I cancel my subscription?</span>
+                        <span>Can I cancel or change my plan?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Yes, you can cancel your subscription at any time from your account settings. You will retain access to all features until the end of your current billing period.</p>
+                        <p>Subscription and support details are handled in the app (see Settings and any support email shown there). You keep access for the period you’ve already paid for unless stated otherwise in checkout.</p>
                     </div>
                 </div>
             </div>
 
             <div class="faq-cta">
-                <a href="#get-started" class="btn-primary">Start Growing Now ↗</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Interactive Tools Section -->
-    <section class="tools-demo-section" id="tools">
-        <div class="container">
-            <h2 class="section-title">Try Our Tools</h2>
-            <p class="section-subtitle">Experience the power of Viralzap with our interactive demos</p>
-            
-            <div class="tools-tabs">
-                <button class="tool-tab active" data-tool="niche-finder">Niche Finder</button>
-                <button class="tool-tab" data-tool="video-gen">Video Generator</button>
-                <button class="tool-tab" data-tool="image-gen">Image Generator</button>
-                <button class="tool-tab" data-tool="channel-analysis">Channel Analysis</button>
-                <button class="tool-tab" data-tool="voice-gen">Voice Generator</button>
-            </div>
-
-            <!-- Niche Finder Tool -->
-            <div class="tool-panel active" id="niche-finder-panel">
-                <div class="tool-header">
-                    <h3>Find Trending Niches</h3>
-                    <p>Discover low-competition, high-demand opportunities</p>
-                </div>
-                <div class="tool-content">
-                    <div class="search-filters">
-                        <div class="filter-group">
-                            <label>Search Keywords</label>
-                            <input type="text" id="niche-search" placeholder="e.g., Minecraft, Roblox, History" class="filter-input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Min Views</label>
-                            <select id="min-views" class="filter-select">
-                                <option value="10000">10K+</option>
-                                <option value="100000" selected>100K+</option>
-                                <option value="1000000">1M+</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Video Age</label>
-                            <select id="video-age" class="filter-select">
-                                <option value="7">Last 7 days</option>
-                                <option value="30" selected>Last 30 days</option>
-                                <option value="90">Last 90 days</option>
-                            </select>
-                        </div>
-                        <button class="btn-search" onclick="searchNiches()">Search Niches</button>
-                    </div>
-                    <div class="results-container" id="niche-results">
-                        <div class="results-placeholder">
-                            <p>Enter keywords and click "Search Niches" to discover trending opportunities</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video Generator Tool -->
-            <div class="tool-panel" id="video-gen-panel">
-                <div class="tool-header">
-                    <h3>Generate Videos with Sora 2</h3>
-                    <p>Create cinematic videos from text prompts</p>
-                </div>
-                <div class="tool-content">
-                    <div class="video-generator-interface">
-                        <div class="prompt-section">
-                            <label>Video Prompt</label>
-                            <textarea id="video-prompt" class="prompt-textarea" rows="4" placeholder="Describe your video... e.g., Cinematic FPV drone shot of a futuristic neon city at night, flying through skyscrapers with neon lights reflecting on wet streets"></textarea>
-                            <div class="prompt-options">
-                                <div class="option-group">
-                                    <label>Quality</label>
-                                    <select id="video-quality" class="option-select">
-                                        <option value="sora2">Sora 2 (13 credits)</option>
-                                        <option value="sora2pro">Sora 2 Pro (38 credits)</option>
-                                        <option value="sora2hd">Sora 2 Pro HD (63 credits)</option>
-                                    </select>
-                                </div>
-                                <div class="option-group">
-                                    <label>Duration</label>
-                                    <select id="video-duration" class="option-select">
-                                        <option value="5">5 seconds</option>
-                                        <option value="10" selected>10 seconds</option>
-                                        <option value="20">20 seconds</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button class="btn-generate" onclick="generateVideo()">Generate Video</button>
-                            <div class="credit-display">Estimated Cost: <span id="video-credits">13</span> credits</div>
-                        </div>
-                        <div class="video-preview-section">
-                            <div class="video-preview" id="video-preview">
-                                <div class="preview-placeholder">
-                                    <div class="preview-icon">🎥</div>
-                                    <p>Your generated video will appear here</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Image Generator Tool -->
-            <div class="tool-panel" id="image-gen-panel">
-                <div class="tool-header">
-                    <h3>Generate Images & Thumbnails</h3>
-                    <p>Create high-quality visuals with AI</p>
-                </div>
-                <div class="tool-content">
-                    <div class="image-generator-interface">
-                        <div class="prompt-section">
-                            <label>Image Prompt</label>
-                            <textarea id="image-prompt" class="prompt-textarea" rows="3" placeholder="Describe the image you want to generate..."></textarea>
-                            <div class="prompt-options">
-                                <div class="option-group">
-                                    <label>Style</label>
-                                    <select id="image-style" class="option-select">
-                                        <option value="realistic">Realistic</option>
-                                        <option value="cinematic">Cinematic</option>
-                                        <option value="cartoon">Cartoon</option>
-                                        <option value="3d">3D Render</option>
-                                    </select>
-                                </div>
-                                <div class="option-group">
-                                    <label>Aspect Ratio</label>
-                                    <select id="image-ratio" class="option-select">
-                                        <option value="16:9">16:9 (YouTube)</option>
-                                        <option value="9:16">9:16 (Shorts)</option>
-                                        <option value="1:1">1:1 (Square)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button class="btn-generate" onclick="generateImage()">Generate Image</button>
-                            <div class="credit-display">Cost: 1 credit per image</div>
-                        </div>
-                        <div class="image-preview-section">
-                            <div class="image-grid" id="image-grid">
-                                <div class="image-placeholder">
-                                    <div class="preview-icon">🖼️</div>
-                                    <p>Generated images will appear here</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Channel Analysis Tool -->
-            <div class="tool-panel" id="channel-analysis-panel">
-                <div class="tool-header">
-                    <h3>Analyze Any Channel</h3>
-                    <p>Get deep insights into channel performance</p>
-                </div>
-                <div class="tool-content">
-                    <div class="channel-search-section">
-                        <div class="search-box">
-                            <input type="text" id="channel-url" class="search-input" placeholder="Enter YouTube channel URL or channel name">
-                            <button class="btn-search" onclick="analyzeChannel()">Analyze Channel</button>
-                        </div>
-                    </div>
-                    <div class="channel-results" id="channel-results">
-                        <div class="results-placeholder">
-                            <p>Enter a channel URL or name to see detailed analytics</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Voice Generator Tool -->
-            <div class="tool-panel" id="voice-gen-panel">
-                <div class="tool-header">
-                    <h3>Generate Voiceovers</h3>
-                    <p>Create unlimited, human-quality voiceovers with ElevenLabs</p>
-                </div>
-                <div class="tool-content">
-                    <div class="voice-generator-interface">
-                        <div class="prompt-section">
-                            <label>Script Text</label>
-                            <textarea id="voice-script" class="prompt-textarea" rows="6" placeholder="Enter your script here... The voiceover will be generated using ElevenLabs AI voices."></textarea>
-                            <div class="prompt-options">
-                                <div class="option-group">
-                                    <label>Voice Model</label>
-                                    <select id="voice-model" class="option-select">
-                                        <option value="male1">Male Voice 1</option>
-                                        <option value="male2">Male Voice 2</option>
-                                        <option value="female1">Female Voice 1</option>
-                                        <option value="female2">Female Voice 2</option>
-                                    </select>
-                                </div>
-                                <div class="option-group">
-                                    <label>Language</label>
-                                    <select id="voice-language" class="option-select">
-                                        <option value="en">English</option>
-                                        <option value="es">Spanish</option>
-                                        <option value="fr">French</option>
-                                        <option value="de">German</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button class="btn-generate" onclick="generateVoice()">Generate Voiceover</button>
-                            <div class="credit-display">Unlimited voice generation included in all plans</div>
-                        </div>
-                        <div class="voice-preview-section">
-                            <div class="voice-player" id="voice-player">
-                                <div class="player-placeholder">
-                                    <div class="preview-icon">🎙️</div>
-                                    <p>Generated voiceover will appear here</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Dashboard Section -->
-    <section class="dashboard-section" id="dashboard">
-        <div class="container">
-            <h2 class="section-title">Your Dashboard</h2>
-            <p class="section-subtitle">Track your usage, credits, and performance</p>
-            
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h3>Credits Balance</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="credit-balance">
-                            <div class="balance-main">
-                                <span class="balance-amount" id="credit-balance">175</span>
-                                <span class="balance-label">Video Credits</span>
-                            </div>
-                            <div class="balance-details">
-                                <div class="detail-item">
-                                    <span>Daily Images</span>
-                                    <span id="image-credits">50/50</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span>Daily Watermarks</span>
-                                    <span id="watermark-credits">11/11</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn-topup" onclick="showTopup()">Top Up Credits</button>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h3>Recent Activity</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="activity-list" id="activity-list">
-                            <div class="activity-item">
-                                <div class="activity-icon">🎥</div>
-                                <div class="activity-info">
-                                    <div class="activity-title">Video Generated</div>
-                                    <div class="activity-time">2 hours ago</div>
-                                </div>
-                                <div class="activity-credits">-13</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">🖼️</div>
-                                <div class="activity-info">
-                                    <div class="activity-title">Image Generated</div>
-                                    <div class="activity-time">5 hours ago</div>
-                                </div>
-                                <div class="activity-credits">-1</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">🔍</div>
-                                <div class="activity-info">
-                                    <div class="activity-title">Niche Search</div>
-                                    <div class="activity-time">1 day ago</div>
-                                </div>
-                                <div class="activity-credits">Free</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h3>Quick Stats</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-value" id="videos-created">12</div>
-                                <div class="stat-label">Videos Created</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value" id="niches-found">8</div>
-                                <div class="stat-label">Niches Found</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value" id="channels-analyzed">24</div>
-                                <div class="stat-label">Channels Analyzed</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <a href="#login" class="btn-primary">View plans <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
             </div>
         </div>
     </section>
@@ -953,9 +356,9 @@
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
-            <h2 class="cta-title">Ready to take control<br>of your channel?</h2>
-            <p class="cta-subtitle">Join thousands of creators who trust Viralzap for accurate data, viral insights, and automated content creation.</p>
-            <a href="#get-started" class="btn-hero">Get started now</a>
+            <h2 class="cta-title">Ready to research smarter?</h2>
+            <p class="cta-subtitle">Sign in, add your YouTube API key, and open the dashboard—everything else is in the app.</p>
+            <a href="#login" class="btn-hero">Get started now</a>
         </div>
     </section>
 
@@ -964,38 +367,26 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <div class="logo">Viralzap</div>
-                    <p>Secure, fast, and seamless content creation.<br>Viralzap makes viral growth effortless.</p>
+                    <img src="assets/logo-viralzaps-light.svg" alt="Viralzaps" class="logo-img logo-img--footer" width="160" height="28" decoding="async"/>
+                    <p>YouTube research and analytics in one dashboard.</p>
                 </div>
                 
                 <div class="footer-links">
                     <div class="footer-column">
-                        <h4>Navigation</h4>
+                        <h4>Page</h4>
                         <ul>
-                            <li><a href="#features">Why Viralzap?</a></li>
-                            <li><a href="#pricing">Pricing</a></li>
-                            <li><a href="#testimonials">Testimonials</a></li>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#get-started">Pricing</a></li>
                             <li><a href="#faq">FAQ</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Free Tools</h4>
-                        <ul>
-                            <li><a href="#terminated">Terminated Channels</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Socials</h4>
-                        <ul>
-                            <li><a href="#twitter">Twitter (X)</a></li>
-                            <li><a href="#discord">Discord</a></li>
-                            <li><a href="#linkedin">LinkedIn</a></li>
+                            <li><a href="dashboard.html">Dashboard</a></li>
+                            <li><a href="#terms" class="terms-policy-link">Terms of Service</a></li>
+                            <li><a href="#privacy" class="privacy-policy-link">Privacy Policy</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2025 Viralzap. All rights reserved.</p>
+                <p>© 2025 Viralzaps. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -1006,7 +397,9 @@
         <div class="login-modal-content">
             <button class="login-close" id="login-close" aria-label="Close login modal">×</button>
             <div class="login-header">
-                <div class="logo">Viralzap</div>
+                <div class="logo">
+                    <img src="assets/logo-viralzaps.svg" alt="Viralzaps" class="logo-img" width="168" height="32" decoding="async"/>
+                </div>
                 <h2>Welcome back</h2>
                 <p>Sign in to your account to continue</p>
             </div>
@@ -1021,7 +414,10 @@
                     <div class="password-input-wrapper">
                         <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
                         <button type="button" class="password-toggle" id="password-toggle" aria-label="Toggle password visibility">
-                            <span class="eye-icon">👁️</span>
+                            <span class="eye-icon" aria-hidden="true">
+                                <svg class="landing-icon eye-visible" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg class="landing-icon eye-hidden" hidden xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            </span>
                         </button>
                     </div>
                     <span class="error-message" id="password-error"></span>
@@ -1064,7 +460,9 @@
         <div class="login-modal-content">
             <button class="login-close" id="signup-close" aria-label="Close signup modal">×</button>
             <div class="login-header">
-                <div class="logo">Viralzap</div>
+                <div class="logo">
+                    <img src="assets/logo-viralzaps.svg" alt="Viralzaps" class="logo-img" width="168" height="32" decoding="async"/>
+                </div>
                 <h2>Create your account</h2>
                 <p>Start your journey to viral growth</p>
             </div>
@@ -1084,7 +482,10 @@
                     <div class="password-input-wrapper">
                         <input type="password" id="signup-password" name="password" placeholder="Create a strong password" required>
                         <button type="button" class="password-toggle" id="signup-password-toggle" aria-label="Toggle password visibility">
-                            <span class="eye-icon">👁️</span>
+                            <span class="eye-icon" aria-hidden="true">
+                                <svg class="landing-icon eye-visible" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg class="landing-icon eye-hidden" hidden xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            </span>
                         </button>
                     </div>
                     <div class="password-strength" id="password-strength">
@@ -1098,7 +499,7 @@
                 <div class="form-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="terms" name="terms" required>
-                        <span>I agree to the <a href="#terms" target="_blank">Terms of Service</a> and <a href="#privacy" target="_blank">Privacy Policy</a></span>
+                        <span>I agree to the <a href="#terms" class="terms-policy-link">Terms of Service</a> and <a href="#privacy" class="privacy-policy-link">Privacy Policy</a></span>
                     </label>
                 </div>
                 <button type="submit" class="btn-login" id="signup-submit">
@@ -1126,11 +527,208 @@
         </div>
     </div>
 
+    <!-- Privacy Policy Modal -->
+    <div class="login-modal legal-modal" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title" aria-hidden="true">
+        <div class="login-modal-overlay" id="privacy-overlay" tabindex="-1"></div>
+        <div class="login-modal-content login-modal-content--legal">
+            <button type="button" class="login-close" id="privacy-close" aria-label="Close privacy policy">×</button>
+            <div class="legal-modal-body">
+                <h2 id="privacy-modal-title">Privacy Policy</h2>
+                <p class="legal-lead">How we collect, use, and protect your information.</p>
+
+                <p>Viralzaps (&quot;the Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our marketing site, client dashboard, and related services (collectively, the &quot;Services&quot;). Please read this Privacy Policy carefully. By using the Services, you consent to the data practices described in this policy.</p>
+
+                <h3>1. Information We Collect</h3>
+                <p>We may collect the following types of information:</p>
+                <ul class="legal-list">
+                    <li><strong>Account information:</strong> When you register, we collect identifiers such as your email address and authentication data through <strong>Firebase Authentication</strong> (email/password and/or Google sign-in), subject to Google&apos;s and Firebase&apos;s terms.</li>
+                    <li><strong>Payment information:</strong> Subscriptions and credit purchases are processed through <strong>Razorpay</strong>. Payment details are handled by Razorpay; we do not store your full card number on our servers.</li>
+                    <li><strong>Usage and preferences:</strong> The app may store preferences (for example, theme and feature-related settings) in your browser using <code>localStorage</code> on your device.</li>
+                    <li><strong>Device and technical data:</strong> Standard data such as IP address, browser type, and device characteristics may be processed by our infrastructure and service providers when you access the site.</li>
+                    <li><strong>YouTube data:</strong> When you use analytics and research features, we process publicly available channel and video data via the <strong>YouTube Data API</strong> using API keys you configure in the client.</li>
+                    <li><strong>Backend processing:</strong> Certain features (for example, trending topics) may send requests to our server, which may use the <strong>Google Gemini</strong> API when configured. Content you submit for those features is processed according to Google&apos;s policies for that API.</li>
+                </ul>
+
+                <h3>2. YouTube API Services</h3>
+                <p>Our Services use YouTube API Services. By using those features, you are also agreeing to be bound by the <a href="https://policies.google.com/privacy" rel="noopener noreferrer" target="_blank">Google Privacy Policy</a>. We access publicly available YouTube data to provide analytics and insights. We do not access your personal YouTube account data beyond what you authorize through Google sign-in for Firebase (used for app login), which is separate from YouTube API quota usage tied to your developer key.</p>
+
+                <h3>3. How We Use Your Information</h3>
+                <p>We use the information we collect to:</p>
+                <ul class="legal-list">
+                    <li>Provide, maintain, and improve the Services</li>
+                    <li>Process transactions and manage subscriptions or credits</li>
+                    <li>Send service-related communications when appropriate</li>
+                    <li>Respond to support requests (including contact details you provide)</li>
+                    <li>Monitor usage to improve reliability and security</li>
+                    <li>Detect, prevent, and address technical issues and abuse</li>
+                    <li>Comply with legal obligations</li>
+                </ul>
+
+                <h3>4. Information Sharing and Disclosure</h3>
+                <p>We do not sell your personal information. We may share information with service providers who assist us, including:</p>
+                <ul class="legal-list">
+                    <li><strong>Google Firebase</strong> — authentication</li>
+                    <li><strong>Razorpay</strong> — payments and subscriptions</li>
+                    <li><strong>Google (YouTube Data API, Gemini)</strong> — when you enable those integrations with your keys or through our backend configuration</li>
+                </ul>
+                <p>We may also disclose information if required by law, to protect the rights and safety of Viralzaps, our users, or others, or in connection with a merger, acquisition, or asset sale, subject to applicable law.</p>
+
+                <h3>5. Data Security</h3>
+                <p>We implement reasonable technical and organizational measures to protect personal information. No method of transmission over the Internet is completely secure; we cannot guarantee absolute security.</p>
+
+                <h3>6. Data Retention</h3>
+                <p>We retain information as long as needed to provide the Services and fulfill the purposes described here, unless a longer period is required by law. Client-side data in <code>localStorage</code> remains on your device until you clear it or your browser removes it.</p>
+
+                <h3>7. Cookies and Similar Technologies</h3>
+                <p>We may use cookies or similar technologies where needed for authentication flows, preferences, or analytics. You can control cookies through your browser settings; disabling them may limit some functionality.</p>
+
+                <h3>8. Third-Party Services</h3>
+                <p>Our Services rely on third-party products (Firebase, Razorpay, Google APIs, and others you configure). Their privacy practices are governed by their respective policies. We encourage you to review those policies.</p>
+
+                <h3>9. Your Rights</h3>
+                <p>Depending on your jurisdiction, you may have rights to access, correct, delete, or export your personal data, or to object to certain processing. To exercise these rights, contact us through the support channels we provide (for example, the email shown in the app where applicable).</p>
+
+                <h3>10. Children&apos;s Privacy</h3>
+                <p>Our Services are not directed to children under 13. We do not knowingly collect personal information from children under 13. If you believe we have collected such information, contact us so we can delete it.</p>
+
+                <h3>11. International Data Transfers</h3>
+                <p>Your information may be processed in countries where our providers operate. By using the Services, you acknowledge that such transfers may occur in line with this policy and provider terms.</p>
+
+                <h3>12. Changes to This Privacy Policy</h3>
+                <p>We may update this Privacy Policy from time to time. We will post the updated policy on this page and revise the &quot;Last updated&quot; date. Continued use of the Services after changes constitutes acceptance of the updated policy.</p>
+
+                <h3>13. Contact Us</h3>
+                <p>If you have questions about this Privacy Policy, contact us through the support options provided in the app or on this site.</p>
+
+                <p class="legal-updated"><strong>Last updated:</strong> March 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div class="login-modal legal-modal" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title" aria-hidden="true">
+        <div class="login-modal-overlay" id="terms-overlay" tabindex="-1"></div>
+        <div class="login-modal-content login-modal-content--legal">
+            <button type="button" class="login-close" id="terms-close" aria-label="Close terms of service">×</button>
+            <div class="legal-modal-body">
+                <h2 id="terms-modal-title">Terms of Service</h2>
+                <p class="legal-lead">Please read these terms carefully before using Viralzaps.</p>
+
+                <p>Viralzaps (&quot;the Company&quot;, &quot;we,&quot; &quot;us,&quot; &quot;our&quot;) provides access to our marketing site and web dashboard (collectively, the &quot;Site&quot;) where we offer a subscription service through which users can access YouTube research, analytics, channel tracking, trending topics, and related tools (the &quot;Services&quot;). These terms of use (&quot;Terms&quot;) govern your access and use (as a registered user or otherwise) of the Site. By accessing or using the Site you accept and agree to be bound by these Terms. These Terms supplement the <a href="#privacy" class="legal-internal-privacy-link">Privacy Policy</a>, the content of which is incorporated herein as if by specific reference.</p>
+
+                <h3>1. Scope</h3>
+                <p>These Terms apply to any person who accesses or uses the Site (referred to collectively as &quot;Users&quot;, &quot;you,&quot; or &quot;your&quot;). Users may be subject to additional terms and conditions as imposed by the Company and the Site.</p>
+                <p>No charge is made for basic browsing of the marketing site unless otherwise stated; paid subscriptions, credit packs, and premium features are offered as described in the app. You are responsible for any internet access charges from your provider. The Company reserves the right to change the services, products, and programs mentioned on this Site at any time, at its sole discretion.</p>
+                <p>The Company reserves the right to seek all remedies available at law and in equity for any violation of these Terms. Any rights not expressly granted herein are reserved by the Company.</p>
+
+                <h3>2. Services May Use YouTube&apos;s Application Programming Interface</h3>
+                <p>By using the Services, you are agreeing to be bound by YouTube&apos;s Terms of Service, which can be reviewed here: <a href="https://www.youtube.com/static?template=terms" rel="noopener noreferrer" target="_blank">YouTube Terms of Service</a>. Features that query YouTube data rely on the YouTube Data API and your configuration (including API keys you supply where applicable).</p>
+
+                <h3>3. Website Operation</h3>
+                <p>This Site is controlled and operated by the Company. The Company does not represent or warrant that the Site or any part thereof is appropriate or available for use in any particular jurisdiction. In choosing to access the Site, you do so on your own initiative and at your own risk, and are responsible for complying with all local laws, rules, and regulations. The Company may limit the Site&apos;s availability, in whole or in part, to any person, geographic area, or jurisdiction the Company chooses, at any time and in the Company&apos;s sole and absolute discretion.</p>
+
+                <h3>4. Purchases</h3>
+                <p>In order to access premium features of the application, you will be required to create a user account (for example via Firebase Authentication).</p>
+                <p>The Company charges fees and receives and/or enables payment for Services purchased through the Site. As at the date of these Terms, payment may be made via <strong>Razorpay</strong> (including cards, UPI, and other methods Razorpay supports in your region). Third-party payment processing services may be amended from time to time without further notice to you. You warrant that you are authorized to use the payment method associated with your account and indemnify the Company against any loss or harm arising from unauthorized use of that payment method.</p>
+                <p>All purchases are final and non-refundable except where legally required by applicable consumer protection laws. By making a purchase, you acknowledge that no refunds will be provided under any circumstances except as required by law. The Company may refuse or cancel your order in the event of fraud, illegal activity, or unauthorized use of any payment method.</p>
+
+                <h3>5. Subscription</h3>
+                <p>You may choose from subscription plans and credit packs offered in the Services. By purchasing a subscription, you acknowledge that billing and renewal behavior follows the plan you select and Razorpay&apos;s checkout flows.</p>
+                <p>You can manage or cancel subscription-related actions through your account and in-app settings where available. Promotional codes or discounts, if offered, apply only as stated at checkout.</p>
+                <p>Subscription plans may be changed or discontinued by the Company. Cancellation may not entitle you to a refund except as required by law. The Company may cancel your subscription at its discretion, subject to applicable law.</p>
+
+                <h3>6. License</h3>
+                <p>Subject to your compliance with these Terms, the Company grants you a limited, non-exclusive, non-sublicensable, revocable, non-transferable license to: (i) access and use the Site on your personal device solely in connection with your use of the Services; and (ii) access and use content, information, and related materials made available through the Site. Any rights not expressly granted herein are reserved by the Company and its licensors.</p>
+                <p><strong>Ownership:</strong> The Site, including products and services sold through it, and all rights therein are and shall remain the Company&apos;s property or the property of the Company&apos;s licensors. Neither these Terms nor your use of the Site conveys any rights: (i) in or related to the Site except the limited license above; or (ii) to use or reference the Company&apos;s name &quot;Viralzaps,&quot; logos, product and service names, trademarks, or service marks, or those of the Company&apos;s licensors, except as permitted herein.</p>
+                <p>To the extent we license content from third parties (&quot;Third Party Content&quot;), you agree to comply with the relevant third-party license. Except with our written permission, you may not: (i) sell, resell, rent, lease, sublicense, assign, or transfer any part of your rights to use Third Party Content; (ii) alter or create derivative works of Third Party Content in violation of those licenses; (iii) falsely represent that you are the original creator of Third Party Content; (iv) use Third Party Content in an unlawful manner; (v) use Third Party Content in a way that allows others to extract or redistribute it as a standalone work where prohibited.</p>
+
+                <h3>7. Restricted Activities</h3>
+                <p>Users shall not under any circumstances:</p>
+                <ul class="legal-list">
+                    <li>modify, adapt, translate, reverse engineer, decompile, or disassemble any portion of the application except as permitted by law;</li>
+                    <li>grant or sell access to a third party to use your user account, or impersonate another user;</li>
+                    <li>violate any applicable laws in the use of the Site;</li>
+                    <li>post or transmit information that is fraudulent, libelous, abusive, obscene, harassing, or illegal;</li>
+                    <li>discriminate against another user on prohibited grounds;</li>
+                    <li>mirror or frame the Site or any portion thereof without permission;</li>
+                    <li>launch programs or scripts to scrape, index, or unduly burden the Site;</li>
+                    <li>remove any copyright, trademark, or proprietary notice from the Site;</li>
+                    <li>exploit the Site except as expressly permitted;</li>
+                    <li>use the Site in a way that infringes third-party intellectual property rights;</li>
+                    <li>use automated means to retrieve or reproduce the Site&apos;s content or structure in violation of these Terms;</li>
+                    <li>use bots, scripts, headless browsers, or non-manual means to interact with the Services in a way that bypasses the intended interface or fair-use limits;</li>
+                    <li>access the Services at a volume or frequency inconsistent with reasonable individual use, as determined by the Company;</li>
+                    <li>resell or commercially exploit outputs in violation of these Terms or third-party licenses;</li>
+                    <li>circumvent or interfere with security, authentication, or anti-abuse measures on the Site.</li>
+                </ul>
+
+                <h3>8. Links to Third-Party Websites and Services</h3>
+                <p>You may access websites, content, products, or services provided by third parties through links on the Site (&quot;Third Party Services&quot;). Different terms and privacy policies may apply. The Company does not endorse third-party services and shall not be liable for them. Third parties are not parties to these Terms. To the fullest extent permitted by law, the Company shall be indemnified and held harmless against loss or damage arising from use of such services.</p>
+
+                <h3>9. Privacy</h3>
+                <p>For information regarding our collection and use of information, please refer to the <a href="#privacy" class="legal-internal-privacy-link">Privacy Policy</a>, which supplements and is incorporated into these Terms by reference. By entering into these Terms, you agree to our collection, use, and disclosure of personal information as described there.</p>
+
+                <h3>10. Copyright Policy</h3>
+                <p>The Company respects intellectual property and expects users to do the same. We will respond to notices of alleged copyright infringement that comply with applicable law. If you believe your work has been copied in a way that constitutes infringement, please provide: (i) a physical or electronic signature of the copyright owner or authorized agent; (ii) identification of the copyrighted work; (iii) identification of the material claimed to be infringing and information to locate it; (iv) your contact information; (v) a good-faith statement that the use is not authorized; and (vi) a statement under penalty of perjury that you are authorized to act on behalf of the copyright owner.</p>
+
+                <h3>11. Digital Millennium Copyright Act</h3>
+                <p>We comply with valid DMCA notices where applicable. We may remove content alleged to be infringing without prior notice, at our sole discretion. In appropriate circumstances, we may terminate accounts that are repeat infringers. Copyright notices may be sent to the contact channels we provide for support.</p>
+
+                <h3>12. No Refund Policy</h3>
+                <p><strong>All sales final:</strong> Purchases of subscriptions, credits, or other products through the Site are final and non-refundable except where required by law. The Company does not provide refunds, credits, or prorated billing except as mandated by applicable consumer protection laws. Temporary interruptions or maintenance do not entitle users to refunds absent legal requirement.</p>
+
+                <h3>13. Experimental Features and Third-Party APIs (Gemini, YouTube)</h3>
+                <p><strong>Gemini and server features:</strong> Viralzaps may offer features (such as trending topics or idea exploration) that send requests to our backend and may use the <strong>Google Gemini</strong> API when configured. Those features are subject to Google&apos;s availability, limits, and policies.</p>
+                <p><strong>Experimental nature:</strong> Such features may be experimental and may change, interrupt, or become unavailable without prior notice. We make no guarantee of continuous operation, quality, or reliability.</p>
+                <p><strong>YouTube Data API:</strong> YouTube search, analytics, and related features depend on Google&apos;s YouTube Data API and your API configuration. Disruptions or changes to Google&apos;s services may affect the Services.</p>
+                <p><strong>No refunds for experimental features:</strong> Due to experimental and third-party-dependent features, no refunds or compensation are owed solely because a feature is modified, limited, or discontinued, except as required by law.</p>
+                <p><strong>Feature evolution:</strong> We may modify, restrict, or discontinue any feature at any time. Usage limits, rate limits, or quotas may apply from the Company or from Google.</p>
+                <p><strong>Data processing:</strong> When you use Gemini-backed or similar features, your inputs may be processed by Google&apos;s systems. You agree to comply with Google&apos;s applicable terms and privacy policies for those APIs.</p>
+                <p><strong>Manual use:</strong> Interactive features are intended for manual use through the Site&apos;s interface. Automated, scripted, or programmatic access that bypasses the intended workflow or fair-use limits is prohibited and may result in suspension or termination.</p>
+                <p><strong>Abuse detection:</strong> The Company may monitor usage patterns. If we determine, in our sole discretion, that usage is automated, excessive, or abusive, we may suspend or terminate access, revoke subscriptions without refund where permitted, and pursue other remedies. Our determination may be final.</p>
+
+                <h3>14. Termination</h3>
+                <p>Your user account may be restricted or terminated without further notice if: (i) the account is associated with illegal or suspicious activity; or (ii) the Company determines there is a material breach of these Terms.</p>
+
+                <h3>15. Abuse, Enforcement, and Account Suspension</h3>
+                <p>Automated tools, scraping frameworks, or non-manual interaction with the Site or Services in violation of these Terms is prohibited. The Company may use technical measures (including rate limits, tokens, and monitoring) to enforce this. Violations may result in immediate suspension or termination, forfeiture of subscription time without refund where permitted, and other remedies. The Company is not required to disclose all detection methods.</p>
+
+                <h3>16. Governing Law and Disputes</h3>
+                <p>BY AGREEING TO THESE TERMS YOU AGREE TO RESOLVE COVERED CLAIMS ON AN INDIVIDUAL BASIS TO THE EXTENT PERMITTED BY LAW, WHICH MAY PRECLUDE CLASS OR REPRESENTATIVE ACTIONS WHERE SUCH WAIVER IS ENFORCEABLE.</p>
+                <p>Except as otherwise set forth in these Terms, these Terms shall be governed by applicable law. Any dispute arising out of or relating to your use of the Site or these Terms may be subject to the dispute resolution mechanisms required by applicable law.</p>
+
+                <h3>17. Error Reporting and Feedback</h3>
+                <p>You may contact us with feedback, errors, or complaints regarding the Services. Where we ask for written notice, please follow the instructions we provide.</p>
+
+                <h3>18. Disclaimer</h3>
+                <p>THE SITE IS PROVIDED ON AN &quot;AS IS,&quot; &quot;WITH ALL FAULTS,&quot; AND &quot;AS AVAILABLE&quot; BASIS TO THE FULLEST EXTENT PERMITTED BY LAW. THE COMPANY DISCLAIMS ALL REPRESENTATIONS AND WARRANTIES NOT EXPRESSLY SET OUT IN THESE TERMS, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. THE COMPANY MAKES NO WARRANTY THAT THE SERVICES WILL BE UNINTERRUPTED OR ERROR-FREE. YOUR USE OF THE SERVICES IS AT YOUR OWN RISK.</p>
+
+                <h3>19. Limitation of Liability</h3>
+                <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE COMPANY SHALL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, PUNITIVE, OR CONSEQUENTIAL DAMAGES, OR FOR LOST PROFITS OR DATA, ARISING FROM YOUR USE OF THE SITE OR SERVICES. THE LIMITATIONS IN THIS SECTION DO NOT PURPORT TO LIMIT LIABILITY THAT CANNOT BE EXCLUDED UNDER APPLICABLE CONSUMER LAW.</p>
+
+                <h3>20. Warranty</h3>
+                <p>The Company makes no express or implied warranties beyond those stated herein. The Company does not warrant that the Site will be available at all times; interruptions may occur due to factors beyond our control.</p>
+
+                <h3>21. Severability</h3>
+                <p>If any provision of these Terms is held invalid or unenforceable, the remaining provisions remain in effect. The parties shall replace an invalid provision with a valid one that reflects the original intent as far as possible. These Terms constitute the entire agreement regarding their subject matter and supersede prior agreements on that subject. &quot;Including&quot; means &quot;including without limitation.&quot;</p>
+
+                <h3>22. Indemnity</h3>
+                <p>You agree to indemnify and hold the Company and its officers, directors, employees, and agents harmless from claims, losses, liabilities, and expenses (including reasonable attorneys&apos; fees) arising out of: (i) your use of the Services; (ii) your breach of these Terms; or (iii) your violation of third-party rights.</p>
+
+                <h3>23. Contact Information</h3>
+                <p>For questions about these Terms of Service, contact us through the support channels or email we publish for Viralzaps (for example in the dashboard or project documentation).</p>
+
+                <p class="legal-updated"><strong>Last Updated:</strong> March 2026</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK (compat for auth) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="public-config.js"></script>
     <script src="firebase-config.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="razorpay-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

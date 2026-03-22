@@ -1,5 +1,5 @@
 /**
- * Viralzap backend – Razorpay orders (credit packs) and subscriptions (plans).
+ * Viralzaps backend – Razorpay orders (credit packs) and subscriptions (plans).
  * Run: npm install && set RAZORPAY_KEY_ID=... RAZORPAY_KEY_SECRET=... (or use .env) && npm start
  */
 
@@ -9,9 +9,14 @@ const cors = require('cors');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 const { generateTrendingIdeas } = require('./geminiTrending');
+const {
+  logOrderPaymentFromRazorpay,
+  logSubscriptionPaymentFromRazorpay,
+  isConfigured: googleSheetsConfigured
+} = require('./paymentSheetLogger');
 
 const app = express();
-// Backend default port (Viralzap frontend uses 3000)
+// Backend default port (Viralzaps frontend uses 3000)
 const PORT = process.env.PORT || 4000;
 
 // Razorpay: amount is in smallest currency unit (cents for USD, paise for INR)
@@ -32,9 +37,10 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({
     ok: true,
-    message: 'Viralzap backend',
+    message: 'Viralzaps backend',
     endpoints: {
       health: 'GET /api/health',
+      youtubeTrendingSearch: 'GET /api/youtube-trending-topics-search?q=',
       createOrder: 'POST /api/create-order',
       verifyPayment: 'POST /api/verify-payment',
       createSubscription: 'POST /api/create-subscription',
@@ -49,6 +55,79 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, razorpay: !!razorpay });
 });
 
+const YOUTUBE_DATA_API_KEY = process.env.YOUTUBE_API_KEY || process.env.YOUTUBE_DATA_API_KEY || '';
+
+/**
+ * YouTube Data API: search for videos related to a topic, ordered by view count (popular / trending in niche).
+ * Query params: q (required), regionCode (default IN), maxResults (default 24, max 50)
+ */
+app.get('/api/youtube-trending-topics-search', async (req, res) => {
+  const rawQ = (req.query.q || '').toString().trim();
+  if (!rawQ || rawQ.length < 2) {
+    return res.status(400).json({ error: 'Enter a topic (at least 2 characters).' });
+  }
+  if (!YOUTUBE_DATA_API_KEY) {
+    return res.status(503).json({
+      error: 'YouTube API key not configured. Set YOUTUBE_API_KEY in backend .env.'
+    });
+  }
+  const region = (req.query.regionCode || 'IN').toString().trim().slice(0, 2).toUpperCase() || 'IN';
+  const max = Math.min(50, Math.max(5, parseInt(req.query.maxResults, 10) || 24));
+  const publishedAfter = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString();
+  const base =
+    'https://www.googleapis.com/youtube/v3/search?' +
+    'part=snippet&q=' +
+    encodeURIComponent(rawQ) +
+    '&type=video&order=viewCount&maxResults=' +
+    max +
+    '&relevanceLanguage=en&regionCode=' +
+    encodeURIComponent(region);
+  const urlWithDate =
+    base + '&publishedAfter=' + encodeURIComponent(publishedAfter) + '&key=' + encodeURIComponent(YOUTUBE_DATA_API_KEY);
+  const urlNoDate = base + '&key=' + encodeURIComponent(YOUTUBE_DATA_API_KEY);
+  try {
+    let r = await fetch(urlWithDate);
+    let json = await r.json().catch(() => null);
+    if (!r.ok) {
+      const msg =
+        json && json.error && json.error.message ? json.error.message : 'YouTube API request failed';
+      return res.status(r.status >= 400 ? r.status : 502).json({ error: msg });
+    }
+    let rows = (json && json.items) || [];
+    if (rows.length === 0) {
+      r = await fetch(urlNoDate);
+      json = await r.json().catch(() => null);
+      if (!r.ok) {
+        const msg =
+          json && json.error && json.error.message ? json.error.message : 'YouTube API request failed';
+        return res.status(r.status >= 400 ? r.status : 502).json({ error: msg });
+      }
+      rows = (json && json.items) || [];
+    }
+    const items = rows
+      .map((row) => {
+        const sn = row.snippet || {};
+        const vid = row.id && row.id.videoId ? row.id.videoId : '';
+        const thumbs = sn.thumbnails || {};
+        const thumb =
+          (thumbs.medium && thumbs.medium.url) ||
+          (thumbs.high && thumbs.high.url) ||
+          (thumbs.default && thumbs.default.url) ||
+          '';
+        return {
+          videoId: vid,
+          title: (sn.title || '').trim(),
+          channelTitle: (sn.channelTitle || '').trim(),
+          thumbnail: thumb
+        };
+      })
+      .filter((x) => x.videoId);
+    res.json({ query: rawQ, regionCode: region, items });
+  } catch (e) {
+    res.status(500).json({ error: e && e.message ? e.message : 'YouTube search failed' });
+  }
+});
+
 /**
  * Gemini-powered "Trending Topics" idea exploration.
  *
@@ -56,6 +135,7 @@ app.get('/api/health', (req, res) => {
  * - keyword: string (required)
  * - parent: string (optional) - when present, generates sub-ideas for that node
  * - exclusions: string[] (optional) - topics to avoid repeating
+ * - geminiApiKey: string (optional) - caller's Gemini key for deeper tree expansion (uses server key if omitted)
  *
  * Response:
  * { items: string[] } where items.length <= 5
@@ -66,6 +146,7 @@ app.post('/api/gemini-trending', async (req, res) => {
     const keyword = (body.keyword || '').toString().trim();
     const parent = body.parent ? (body.parent || '').toString().trim() : '';
     const exclusions = Array.isArray(body.exclusions) ? body.exclusions : [];
+    const geminiApiKey = (body.geminiApiKey || '').toString().trim();
 
     if (!keyword) {
       return res.status(400).json({ error: 'Missing keyword' });
@@ -74,7 +155,8 @@ app.post('/api/gemini-trending', async (req, res) => {
     const items = await generateTrendingIdeas({
       keyword,
       parent: parent || null,
-      exclusions
+      exclusions,
+      apiKey: geminiApiKey || undefined
     });
 
     res.json({ items });
@@ -188,6 +270,16 @@ app.post('/api/verify-payment', async (req, res) => {
   if (!verified) {
     return res.status(400).json({ error: 'Invalid signature', verified: false });
   }
+  const customer_name = (body.customer_name ?? body.customerName ?? '').toString().trim();
+  const customer_email = (body.customer_email ?? body.customerEmail ?? '').toString().trim();
+  if (razorpay && googleSheetsConfigured()) {
+    logOrderPaymentFromRazorpay(razorpay, {
+      orderId: order_id,
+      paymentId: payment_id,
+      customerName: customer_name,
+      customerEmail: customer_email
+    }).catch(function () {});
+  }
   res.json({ verified: true });
 });
 
@@ -200,23 +292,39 @@ app.post('/api/verify-subscription-payment', async (req, res) => {
   if (!secret) {
     return res.status(503).json({ error: 'Razorpay not configured' });
   }
-  const { subscription_id, payment_id, signature } = req.body;
+  const reqBody = req.body || {};
+  const { subscription_id, payment_id, signature } = reqBody;
   if (!subscription_id || !payment_id || !signature) {
     return res.status(400).json({ error: 'Missing subscription_id, payment_id, or signature' });
   }
-  const body = payment_id + '|' + subscription_id;
-  const expected = crypto.createHmac('sha256', secret).update(body).digest('hex');
+  const sigPayload = payment_id + '|' + subscription_id;
+  const expected = crypto.createHmac('sha256', secret).update(sigPayload).digest('hex');
   if (expected !== signature) {
     return res.status(400).json({ error: 'Invalid signature', verified: false });
+  }
+  const customer_name = (reqBody.customer_name ?? reqBody.customerName ?? '').toString().trim();
+  const customer_email = (reqBody.customer_email ?? reqBody.customerEmail ?? '').toString().trim();
+  if (razorpay && googleSheetsConfigured()) {
+    logSubscriptionPaymentFromRazorpay(razorpay, {
+      subscriptionId: subscription_id,
+      paymentId: payment_id,
+      customerName: customer_name,
+      customerEmail: customer_email
+    }).catch(function () {});
   }
   res.json({ verified: true });
 });
 
 function startServer(port) {
   const server = app.listen(port, () => {
-    console.log('Viralzap backend running on http://localhost:' + port);
+    console.log('Viralzaps backend running on http://localhost:' + port);
     if (port !== PORT) console.warn('Update razorpay-config.js apiBaseUrl to http://localhost:' + port);
     if (!razorpay) console.warn('Razorpay keys missing – set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET');
+    if (!googleSheetsConfigured()) {
+      console.warn(
+        'Google Sheets payment log disabled – set GOOGLE_APPS_SCRIPT_WEBHOOK_URL + GOOGLE_APPS_SCRIPT_WEBHOOK_SECRET (see backend/google-apps-script-payment-webhook.gs), or service account JSON + share sheet.'
+      );
+    }
   });
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE' && port < 4010) {

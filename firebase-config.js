@@ -13,15 +13,15 @@
  * 6. Authentication > Settings > Authorized domains: add your production domain if needed; localhost is listed by default.
  */
 
-// Replace with your own Firebase project values.
+// Viralzaps app (Firebase project id unchanged)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
-  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID",
-  measurementId: "YOUR_FIREBASE_MEASUREMENT_ID"
+  apiKey: "AIzaSyBm2Q9p3AZL9HyMHzBuM-DBSC4w1BPdUzk",
+  authDomain: "viralzap-5f04e.firebaseapp.com",
+  projectId: "viralzap-5f04e",
+  storageBucket: "viralzap-5f04e.firebasestorage.app",
+  messagingSenderId: "434254312524",
+  appId: "1:434254312524:web:3108d448c682424d50b0e9",
+  measurementId: "G-7NWEY1R0L9"
 };
 
 // Initialize Firebase (requires Firebase SDK script loaded first)

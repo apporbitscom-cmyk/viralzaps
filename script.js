@@ -5,8 +5,6 @@ const html = document.documentElement;
 // Check for saved theme preference or default to light mode
 const currentTheme = localStorage.getItem('theme') || 'light';
 html.setAttribute('data-theme', currentTheme);
-updateThemeIcon(currentTheme);
-
 if (themeToggle) {
     themeToggle.addEventListener('click', () => {
         const currentTheme = html.getAttribute('data-theme');
@@ -14,15 +12,7 @@ if (themeToggle) {
         
         html.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
     });
-}
-
-function updateThemeIcon(theme) {
-    const themeIcon = document.querySelector('.theme-icon');
-    if (themeIcon) {
-        themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
-    }
 }
 
 // Mobile Menu Toggle
@@ -36,11 +26,34 @@ if (mobileMenuToggle) {
     });
 }
 
-// Smooth Scrolling for Navigation Links
+// Hash links: modals, login/signup, or smooth scroll to sections
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#privacy') {
+            e.preventDefault();
+            openPrivacyModal();
+            return;
+        }
+        if (href === '#terms') {
+            e.preventDefault();
+            openTermsModal();
+            return;
+        }
+        if (href === '#login') {
+            e.preventDefault();
+            closeSignupModal();
+            openLoginModal();
+            return;
+        }
+        if (href === '#signup') {
+            e.preventDefault();
+            closeLoginModal();
+            openSignupModal();
+            return;
+        }
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const target = document.querySelector(href);
         if (target) {
             target.scrollIntoView({
                 behavior: 'smooth',
@@ -48,6 +61,64 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             });
         }
     });
+});
+
+const privacyModal = document.getElementById('privacy-modal');
+const privacyOverlay = document.getElementById('privacy-overlay');
+const privacyClose = document.getElementById('privacy-close');
+
+const termsModal = document.getElementById('terms-modal');
+const termsOverlay = document.getElementById('terms-overlay');
+const termsClose = document.getElementById('terms-close');
+
+function openPrivacyModal() {
+    if (!privacyModal) return;
+    privacyModal.classList.add('active');
+    privacyModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePrivacyModal() {
+    if (!privacyModal) return;
+    privacyModal.classList.remove('active');
+    privacyModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+function openTermsModal() {
+    if (!termsModal) return;
+    termsModal.classList.add('active');
+    termsModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeTermsModal() {
+    if (!termsModal) return;
+    termsModal.classList.remove('active');
+    termsModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+if (privacyClose) {
+    privacyClose.addEventListener('click', closePrivacyModal);
+}
+if (privacyOverlay) {
+    privacyOverlay.addEventListener('click', closePrivacyModal);
+}
+
+if (termsClose) {
+    termsClose.addEventListener('click', closeTermsModal);
+}
+if (termsOverlay) {
+    termsOverlay.addEventListener('click', closeTermsModal);
+}
+
+document.addEventListener('click', (e) => {
+    const a = e.target.closest('a.legal-internal-privacy-link');
+    if (!a || a.getAttribute('href') !== '#privacy') return;
+    e.preventDefault();
+    closeTermsModal();
+    openPrivacyModal();
 });
 
 // FAQ Accordion
@@ -71,73 +142,6 @@ faqItems.forEach(item => {
     });
 });
 
-// Testimonial Slider
-let currentTestimonial = 0;
-const testimonialCards = document.querySelectorAll('.testimonial-card');
-const testimonialDots = document.querySelectorAll('.dot');
-const testimonialPrev = document.querySelector('.testimonial-prev');
-const testimonialNext = document.querySelector('.testimonial-next');
-
-function showTestimonial(index) {
-    // Remove active class from all cards and dots
-    testimonialCards.forEach(card => card.classList.remove('active'));
-    testimonialDots.forEach(dot => dot.classList.remove('active'));
-    
-    // Add active class to current card and dot
-    if (testimonialCards[index]) {
-        testimonialCards[index].classList.add('active');
-    }
-    if (testimonialDots[index]) {
-        testimonialDots[index].classList.add('active');
-    }
-}
-
-function nextTestimonial() {
-    currentTestimonial = (currentTestimonial + 1) % testimonialCards.length;
-    showTestimonial(currentTestimonial);
-}
-
-function prevTestimonial() {
-    currentTestimonial = (currentTestimonial - 1 + testimonialCards.length) % testimonialCards.length;
-    showTestimonial(currentTestimonial);
-}
-
-if (testimonialNext) {
-    testimonialNext.addEventListener('click', nextTestimonial);
-}
-
-if (testimonialPrev) {
-    testimonialPrev.addEventListener('click', prevTestimonial);
-}
-
-// Dot navigation
-testimonialDots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-        currentTestimonial = index;
-        showTestimonial(currentTestimonial);
-    });
-});
-
-// Auto-rotate testimonials
-let testimonialInterval = setInterval(nextTestimonial, 5000);
-
-// Pause auto-rotation on hover
-const testimonialsSlider = document.querySelector('.testimonials-slider');
-if (testimonialsSlider) {
-    testimonialsSlider.addEventListener('mouseenter', () => {
-        clearInterval(testimonialInterval);
-    });
-    
-    testimonialsSlider.addEventListener('mouseleave', () => {
-        testimonialInterval = setInterval(nextTestimonial, 5000);
-    });
-}
-
-// Initialize first testimonial
-if (testimonialCards.length > 0) {
-    showTestimonial(0);
-}
-
 // Navbar scroll effect
 let lastScroll = 0;
 const navbar = document.querySelector('.navbar');
@@ -152,9 +156,6 @@ window.addEventListener('scroll', () => {
     }
     
     lastScroll = currentScroll;
-    
-    // Update scroll progress
-    updateScrollProgress();
 });
 
 // Scroll Progress Indicator - Removed to match original UI
@@ -176,7 +177,7 @@ const observer = new IntersectionObserver((entries) => {
 
 // Observe elements for animation
 document.addEventListener('DOMContentLoaded', () => {
-    const animateElements = document.querySelectorAll('.feature-card, .platform-feature, .tool-card, .credit-card, .pricing-card');
+    const animateElements = document.querySelectorAll('.feature-card, .tool-card, .pricing-card');
     
     animateElements.forEach(el => {
         el.style.opacity = '0';
@@ -185,34 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(el);
     });
 });
-
-// Pricing toggle (Annual/Monthly)
-const annualToggle = document.getElementById('annual-toggle');
-const priceAmounts = document.querySelectorAll('.price-amount');
-const planBilling = document.querySelectorAll('.plan-billing');
-
-if (annualToggle) {
-    annualToggle.addEventListener('change', (e) => {
-        const isAnnual = e.target.checked;
-        
-        priceAmounts.forEach((price, index) => {
-            const currentPrice = parseFloat(price.textContent.replace('$', ''));
-            let newPrice;
-            
-            if (isAnnual) {
-                // Apply 30% discount for annual
-                newPrice = Math.round(currentPrice * 12 * 0.7);
-                price.textContent = `$${newPrice}`;
-                planBilling[index].textContent = `Billed annually at $${newPrice}`;
-            } else {
-                // Monthly prices
-                const monthlyPrices = [25, 45, 80];
-                price.textContent = `$${monthlyPrices[index]}`;
-                planBilling[index].textContent = `Billed monthly at $${monthlyPrices[index]}`;
-            }
-        });
-    });
-}
 
 // Form validation (if forms are added later)
 function validateEmail(email) {
@@ -274,46 +247,18 @@ window.addEventListener('scroll', () => {
     });
 });
 
-console.log('Viralzap website loaded successfully!');
+console.log('Viralzaps website loaded successfully!');
 
 // Login Modal Functionality
 const loginModal = document.getElementById('login-modal');
 const signupModal = document.getElementById('signup-modal');
-const loginLink = document.querySelector('a[href="#login"]');
-const signupLink = document.getElementById('signup-link');
 const loginClose = document.getElementById('login-close');
 const signupClose = document.getElementById('signup-close');
 const loginOverlay = document.getElementById('login-overlay');
 const signupOverlay = document.getElementById('signup-overlay');
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
-const loginToSignupLink = document.getElementById('login-link');
-
-// Open login modal
-if (loginLink) {
-    loginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        openLoginModal();
-    });
-}
-
-// Open signup modal from login
-if (signupLink) {
-    signupLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeLoginModal();
-        openSignupModal();
-    });
-}
-
-// Open login modal from signup
-if (loginToSignupLink) {
-    loginToSignupLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeSignupModal();
-        openLoginModal();
-    });
-}
+// Sign up / Sign in links use href="#signup" / href="#login" (handled in hash router above)
 
 // Close modals
 if (loginClose) {
@@ -335,6 +280,14 @@ if (signupOverlay) {
 // Close on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        if (termsModal && termsModal.classList.contains('active')) {
+            closeTermsModal();
+            return;
+        }
+        if (privacyModal && privacyModal.classList.contains('active')) {
+            closePrivacyModal();
+            return;
+        }
         closeLoginModal();
         closeSignupModal();
     }
@@ -401,11 +354,26 @@ const signupPasswordToggle = document.getElementById('signup-password-toggle');
 const loginPasswordInput = document.getElementById('login-password');
 const signupPasswordInput = document.getElementById('signup-password');
 
+function setPasswordEyeIcons(toggleBtn, isHidden) {
+    const wrap = toggleBtn && toggleBtn.querySelector('.eye-icon');
+    if (!wrap) return;
+    var open = wrap.querySelector('.eye-visible');
+    var off = wrap.querySelector('.eye-hidden');
+    if (!open || !off) return;
+    if (isHidden) {
+        open.hidden = false;
+        off.hidden = true;
+    } else {
+        open.hidden = true;
+        off.hidden = false;
+    }
+}
+
 if (passwordToggle && loginPasswordInput) {
     passwordToggle.addEventListener('click', () => {
         const type = loginPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         loginPasswordInput.setAttribute('type', type);
-        passwordToggle.querySelector('.eye-icon').textContent = type === 'password' ? '👁️' : '🙈';
+        setPasswordEyeIcons(passwordToggle, type === 'password');
     });
 }
 
@@ -413,7 +381,7 @@ if (signupPasswordToggle && signupPasswordInput) {
     signupPasswordToggle.addEventListener('click', () => {
         const type = signupPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         signupPasswordInput.setAttribute('type', type);
-        signupPasswordToggle.querySelector('.eye-icon').textContent = type === 'password' ? '👁️' : '🙈';
+        setPasswordEyeIcons(signupPasswordToggle, type === 'password');
     });
 }
 
@@ -461,12 +429,6 @@ function resetPasswordStrength() {
     });
 }
 
-// Form Validation
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
 function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
     if (errorElement) {
@@ -479,6 +441,231 @@ function clearError(elementId) {
     if (errorElement) {
         errorElement.textContent = '';
     }
+}
+
+// After Firebase sign-in: require plan selection + Razorpay before dashboard (same plans as dashboard)
+const SUBSCRIPTION_PLAN_STORAGE_KEY = 'subscription_plan';
+const POST_AUTH_PLAN_NAMES = {
+    plan_15d: 'Viralzaps 15 Days',
+    plan_6m: 'Viralzaps 6 Months',
+    plan_lifetime: 'Viralzaps Lifetime'
+};
+const POST_AUTH_PLAN_PRICES = {
+    plan_15d: '99',
+    plan_6m: '999',
+    plan_lifetime: '19999'
+};
+
+function hasActiveSubscriptionPlan() {
+    try {
+        const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+        const uid = user && user.uid;
+        if (!uid) return false;
+        const raw = localStorage.getItem(SUBSCRIPTION_PLAN_STORAGE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data || !data.plan || !POST_AUTH_PLAN_NAMES[data.plan]) return false;
+        if (data.firebaseUid && data.firebaseUid !== uid) return false;
+        if (!data.firebaseUid) {
+            if (data.plan === 'plan_lifetime') {
+                data.firebaseUid = uid;
+                try {
+                    localStorage.setItem(SUBSCRIPTION_PLAN_STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {}
+                return true;
+            }
+            if (data.expiresAt && new Date(data.expiresAt) > new Date()) {
+                data.firebaseUid = uid;
+                try {
+                    localStorage.setItem(SUBSCRIPTION_PLAN_STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {}
+                return true;
+            }
+            return false;
+        }
+        if (data.plan === 'plan_lifetime') return true;
+        if (data.expiresAt) {
+            return new Date(data.expiresAt) > new Date();
+        }
+        return false;
+    } catch (e) {
+        return false;
+    }
+}
+
+function removePostAuthPlansModal() {
+    const el = document.getElementById('post-auth-plans-modal');
+    if (el) {
+        el.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+function startPostAuthPlanCheckout(plan) {
+    const config = typeof window !== 'undefined' && window.RAZORPAY_CONFIG;
+    if (!config || !config.keyId || !config.apiBaseUrl) {
+        alert('Payments are not configured. Set Razorpay in razorpay-config.js and run the backend.');
+        return;
+    }
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+    const userEmail = (user && user.email) ? user.email : '';
+    const userName = (user && user.displayName) ? user.displayName : '';
+    const planAmounts = { plan_15d: 9900, plan_6m: 99900, plan_lifetime: 1999900 };
+    const planShortNames = { plan_15d: '15 Days', plan_6m: '6 Months', plan_lifetime: 'Lifetime' };
+    const amountPaise = planAmounts[plan];
+    if (!amountPaise) return;
+
+    fetch(config.apiBaseUrl + '/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: amountPaise,
+            currency: 'INR',
+            receipt: 'plan_' + plan + '_' + Date.now(),
+            notes: { plan: plan, customer_email: userEmail, customer_name: userName }
+        })
+    }).then(function (r) { return r.json(); }).then(function (data) {
+        if (data.error) throw new Error(data.error);
+        const options = {
+            key: config.keyId,
+            order_id: data.orderId,
+            amount: data.amount,
+            currency: data.currency || 'INR',
+            name: 'Viralzaps',
+            description: planShortNames[plan] + ' Plan',
+            prefill: { email: userEmail, name: userName },
+            handler: function (res) {
+                const activatedAt = Date.now();
+                const planData = {
+                    plan: plan,
+                    planName: POST_AUTH_PLAN_NAMES[plan],
+                    price: POST_AUTH_PLAN_PRICES[plan],
+                    activatedAt: activatedAt,
+                    firebaseUid: user && user.uid ? user.uid : undefined
+                };
+                if (plan === 'plan_15d') {
+                    const d15 = new Date(activatedAt);
+                    d15.setDate(d15.getDate() + 15);
+                    planData.expiresAt = d15.toISOString();
+                } else if (plan === 'plan_6m') {
+                    const d6 = new Date(activatedAt);
+                    d6.setMonth(d6.getMonth() + 6);
+                    planData.expiresAt = d6.toISOString();
+                }
+                try {
+                    localStorage.setItem(SUBSCRIPTION_PLAN_STORAGE_KEY, JSON.stringify(planData));
+                } catch (e) {}
+                const payload = {
+                    order_id: res.razorpay_order_id || data.orderId,
+                    payment_id: res.razorpay_payment_id,
+                    signature: res.razorpay_signature,
+                    customer_name: userName,
+                    customer_email: userEmail
+                };
+                fetch(config.apiBaseUrl + '/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(function (v) { return v.json(); }).catch(function () {}).finally(function () {
+                    removePostAuthPlansModal();
+                    window.location.href = 'dashboard.html';
+                });
+            }
+        };
+        if (typeof Razorpay === 'undefined') {
+            alert('Razorpay script failed to load. Check your network and try again.');
+            return;
+        }
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (payRes) {
+            alert('Payment failed: ' + (payRes.error && payRes.error.description ? payRes.error.description : 'Unknown error'));
+        });
+        rzp.open();
+    }).catch(function (err) {
+        alert('Could not start checkout: ' + (err.message || 'Network error') + '. Is the backend running on ' + config.apiBaseUrl + '?');
+    });
+}
+
+function showPostAuthPlansModal() {
+    removePostAuthPlansModal();
+    const modal = document.createElement('div');
+    modal.id = 'post-auth-plans-modal';
+    modal.className = 'plans-modal plans-modal-open';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'post-auth-plans-title');
+    const canContinue = hasActiveSubscriptionPlan();
+    const continueBanner = canContinue
+        ? '<div class="post-auth-continue-banner"><p class="post-auth-continue-text">You already have an active plan on this device.</p><button type="button" class="settings-btn settings-btn-primary" id="post-auth-continue-dashboard">Continue to dashboard</button></div>'
+        : '';
+    modal.innerHTML =
+        '<div class="plans-modal-overlay" id="post-auth-plans-overlay"></div>' +
+        '<div class="plans-modal-content">' +
+        continueBanner +
+        '  <h2 class="plans-modal-title" id="post-auth-plans-title">Choose your plan</h2>' +
+        '  <p class="plans-modal-subtitle">Select a plan to continue to your dashboard. Complete payment in the secure Razorpay window.</p>' +
+        '  <div class="plans-grid">' +
+        '    <div class="plan-card" data-plan="plan_15d">' +
+        '      <div class="plan-card-header">' +
+        '        <h3 class="plan-card-name">15 Days</h3>' +
+        '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹99</span><span class="plan-card-period">/15 days</span></div>' +
+        '      </div>' +
+        '      <p class="plan-card-features">15 days access</p>' +
+        '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Select & pay</button>' +
+        '    </div>' +
+        '    <div class="plan-card plan-card-featured" data-plan="plan_6m">' +
+        '      <span class="plan-card-badge">Best value</span>' +
+        '      <div class="plan-card-header">' +
+        '        <h3 class="plan-card-name">6 Months</h3>' +
+        '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹999</span><span class="plan-card-period">/6 months</span></div>' +
+        '      </div>' +
+        '      <p class="plan-card-features">6 months access</p>' +
+        '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Select & pay</button>' +
+        '    </div>' +
+        '    <div class="plan-card" data-plan="plan_lifetime">' +
+        '      <div class="plan-card-header">' +
+        '        <h3 class="plan-card-name">Lifetime</h3>' +
+        '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹19,999</span><span class="plan-card-period"> one-time</span></div>' +
+        '      </div>' +
+        '      <p class="plan-card-features">Lifetime access</p>' +
+        '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Select & pay</button>' +
+        '    </div>' +
+        '  </div>' +
+        '  <p class="post-auth-plans-footer"><button type="button" class="post-auth-sign-out" id="post-auth-sign-out">Sign out</button></p>' +
+        '</div>';
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    document.getElementById('post-auth-plans-overlay').addEventListener('click', function (e) {
+        e.stopPropagation();
+    });
+    const continueBtn = document.getElementById('post-auth-continue-dashboard');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', function () {
+            removePostAuthPlansModal();
+            window.location.href = 'dashboard.html';
+        });
+    }
+    modal.querySelectorAll('.plan-card-activate').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const card = btn.closest('.plan-card');
+            const plan = card && card.getAttribute('data-plan');
+            if (plan) startPostAuthPlanCheckout(plan);
+        });
+    });
+    document.getElementById('post-auth-sign-out').addEventListener('click', async function () {
+        if (typeof signOut === 'function') {
+            try {
+                await signOut();
+            } catch (e) {}
+        }
+        removePostAuthPlansModal();
+        updateLoginState(false);
+    });
+}
+
+function completeAuthAndGoHomeOrCheckout() {
+    showPostAuthPlansModal();
 }
 
 // Firebase email/password error messages
@@ -545,7 +732,7 @@ if (loginForm) {
             await signInWithEmail(email, password);
             closeLoginModal();
             updateLoginState(true);
-            window.location.href = 'dashboard.html';
+            completeAuthAndGoHomeOrCheckout();
         } catch (error) {
             const msg = getEmailAuthErrorMessage(error);
             showError('password-error', msg);
@@ -619,7 +806,7 @@ if (signupForm) {
             }
             closeSignupModal();
             updateLoginState(true);
-            window.location.href = 'dashboard.html';
+            completeAuthAndGoHomeOrCheckout();
         } catch (error) {
             const msg = getEmailAuthErrorMessage(error);
             showError('signup-email-error', msg);
@@ -632,15 +819,10 @@ if (signupForm) {
 
 // Update login state in UI
 function updateLoginState(isLoggedIn) {
-    const loginLink = document.querySelector('a[href="#login"]');
-    if (loginLink) {
-        if (isLoggedIn) {
-            loginLink.textContent = 'Dashboard';
-            loginLink.href = 'dashboard.html';
-        } else {
-            loginLink.textContent = 'Login';
-            loginLink.href = '#login';
-        }
+    const el = document.getElementById('nav-cta');
+    if (el) {
+        el.textContent = 'Try Viralzaps';
+        el.href = isLoggedIn ? 'dashboard.html' : '#login';
     }
 }
 
@@ -697,7 +879,7 @@ async function handleGoogleSignIn(button) {
         closeLoginModal();
         closeSignupModal();
         updateLoginState(true);
-        window.location.href = 'dashboard.html';
+        completeAuthAndGoHomeOrCheckout();
     } catch (err) {
         const msg = getGoogleAuthErrorMessage(err);
         const loginError = document.getElementById('password-error');
@@ -717,10 +899,22 @@ document.getElementById('google-signup')?.addEventListener('click', (e) => {
     handleGoogleSignIn(e.currentTarget);
 });
 
-// Restore auth state on page load (Firebase persistence)
+// Restore auth state on page load (Firebase persistence); reopen plan flow if sent back from dashboard
 if (typeof onAuthStateChanged === 'function') {
     onAuthStateChanged((user) => {
         updateLoginState(!!user);
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (user && params.get('needpay') === '1') {
+                const clean = window.location.pathname + (window.location.hash || '');
+                window.history.replaceState({}, '', clean);
+                if (hasActiveSubscriptionPlan()) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    showPostAuthPlansModal();
+                }
+            }
+        } catch (e) {}
     });
 }
 
@@ -731,6 +925,7 @@ if (typeof getGoogleRedirectResult === 'function' && typeof onAuthStateChanged =
             closeLoginModal();
             closeSignupModal();
             updateLoginState(true);
+            completeAuthAndGoHomeOrCheckout();
         }
     }).catch((err) => {
         if (err && err.code !== 'auth/popup-closed-by-user') {
@@ -738,424 +933,3 @@ if (typeof getGoogleRedirectResult === 'function' && typeof onAuthStateChanged =
         }
     });
 }
-
-// Tool Tabs Functionality
-const toolTabs = document.querySelectorAll('.tool-tab');
-const toolPanels = document.querySelectorAll('.tool-panel');
-
-toolTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        const toolName = tab.getAttribute('data-tool');
-        
-        // Remove active class from all tabs and panels
-        toolTabs.forEach(t => t.classList.remove('active'));
-        toolPanels.forEach(p => p.classList.remove('active'));
-        
-        // Add active class to clicked tab and corresponding panel
-        tab.classList.add('active');
-        const panel = document.getElementById(`${toolName}-panel`);
-        if (panel) {
-            panel.classList.add('active');
-        }
-    });
-});
-
-// Sample niche data for demo
-const sampleNiches = [
-    {
-        name: 'Minecraft Parkour',
-        trend: '+245%',
-        views: '2.4M',
-        competition: 'Low',
-        age: '7 days',
-        growth: 'Rapid'
-    },
-    {
-        name: 'Roblox Rants',
-        trend: '+189%',
-        views: '1.8M',
-        competition: 'Medium',
-        age: '14 days',
-        growth: 'Growing'
-    },
-    {
-        name: 'Bodycam Stories',
-        trend: '+312%',
-        views: '3.1M',
-        competition: 'Low',
-        age: '5 days',
-        growth: 'Rapid'
-    },
-    {
-        name: 'History Documentaries',
-        trend: '+156%',
-        views: '950K',
-        competition: 'Low',
-        age: '21 days',
-        growth: 'Steady'
-    },
-    {
-        name: 'AI Explained',
-        trend: '+278%',
-        views: '1.2M',
-        competition: 'Medium',
-        age: '10 days',
-        growth: 'Rapid'
-    }
-];
-
-// Niche Finder Search
-function searchNiches() {
-    const searchInput = document.getElementById('niche-search');
-    const minViews = document.getElementById('min-views').value;
-    const videoAge = document.getElementById('video-age').value;
-    const resultsContainer = document.getElementById('niche-results');
-    
-    if (!searchInput.value.trim()) {
-        resultsContainer.innerHTML = `
-            <div class="results-placeholder">
-                <p>Please enter keywords to search for niches</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Show loading state
-    resultsContainer.innerHTML = `
-        <div class="results-placeholder">
-            <p>Searching for trending niches...</p>
-        </div>
-    `;
-    
-    // Simulate API call
-    setTimeout(() => {
-        const filteredNiches = sampleNiches.filter((niche, index) => {
-            return index < 3; // Show first 3 results
-        });
-        
-        let resultsHTML = '';
-        filteredNiches.forEach(niche => {
-            resultsHTML += `
-                <div class="niche-result-item">
-                    <div class="niche-result-header">
-                        <div class="niche-name">${niche.name}</div>
-                        <div class="niche-trend">${niche.trend}</div>
-                    </div>
-                    <div class="niche-stats">
-                        <div class="niche-stat">
-                            <div class="niche-stat-label">Avg Views</div>
-                            <div class="niche-stat-value">${niche.views}</div>
-                        </div>
-                        <div class="niche-stat">
-                            <div class="niche-stat-label">Competition</div>
-                            <div class="niche-stat-value">${niche.competition}</div>
-                        </div>
-                        <div class="niche-stat">
-                            <div class="niche-stat-label">Video Age</div>
-                            <div class="niche-stat-value">${niche.age}</div>
-                        </div>
-                        <div class="niche-stat">
-                            <div class="niche-stat-label">Growth</div>
-                            <div class="niche-stat-value">${niche.growth}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        resultsContainer.innerHTML = resultsHTML;
-    }, 1500);
-}
-
-// Video Generation
-function generateVideo() {
-    const prompt = document.getElementById('video-prompt').value;
-    const quality = document.getElementById('video-quality').value;
-    const duration = document.getElementById('video-duration').value;
-    const preview = document.getElementById('video-preview');
-    const generateBtn = document.querySelector('#video-gen-panel .btn-generate');
-    
-    if (!prompt.trim()) {
-        alert('Please enter a video prompt');
-        return;
-    }
-    
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating...';
-    
-    preview.innerHTML = `
-        <div class="preview-placeholder">
-            <div class="preview-icon">⏳</div>
-            <p>Generating your video... This may take a moment.</p>
-        </div>
-    `;
-    
-    // Simulate video generation
-    setTimeout(() => {
-        preview.innerHTML = `
-            <div style="width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; font-weight: 600;">
-                🎥 Video Generated Successfully!<br>
-                <span style="font-size: 0.875rem; opacity: 0.9; margin-top: 0.5rem; display: block;">Your video is ready to download</span>
-            </div>
-        `;
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Video';
-        
-        // Update credits
-        updateCredits(parseInt(document.getElementById('video-credits').textContent));
-        addActivity('Video Generated', '🎥');
-    }, 3000);
-}
-
-// Update video credits based on quality selection
-document.getElementById('video-quality')?.addEventListener('change', function() {
-    const credits = {
-        'sora2': 13,
-        'sora2pro': 38,
-        'sora2hd': 63
-    };
-    document.getElementById('video-credits').textContent = credits[this.value] || 13;
-});
-
-// Image Generation
-function generateImage() {
-    const prompt = document.getElementById('image-prompt').value;
-    const style = document.getElementById('image-style').value;
-    const ratio = document.getElementById('image-ratio').value;
-    const imageGrid = document.getElementById('image-grid');
-    const generateBtn = document.querySelector('#image-gen-panel .btn-generate');
-    
-    if (!prompt.trim()) {
-        alert('Please enter an image prompt');
-        return;
-    }
-    
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating...';
-    
-    // Simulate image generation
-    setTimeout(() => {
-        const colors = [
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-        ];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        
-        const imageHTML = `
-            <div class="image-item" style="background: ${randomColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                Generated Image
-            </div>
-        `;
-        
-        if (imageGrid.querySelector('.image-placeholder')) {
-            imageGrid.innerHTML = imageHTML;
-        } else {
-            imageGrid.insertAdjacentHTML('beforeend', imageHTML);
-        }
-        
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Image';
-        
-        updateImageCredits();
-        addActivity('Image Generated', '🖼️');
-    }, 2000);
-}
-
-// Channel Analysis
-function analyzeChannel() {
-    const channelUrl = document.getElementById('channel-url').value;
-    const resultsContainer = document.getElementById('channel-results');
-    const analyzeBtn = document.querySelector('#channel-analysis-panel .btn-search');
-    
-    if (!channelUrl.trim()) {
-        alert('Please enter a channel URL or name');
-        return;
-    }
-    
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = 'Analyzing...';
-    
-    resultsContainer.innerHTML = `
-        <div class="results-placeholder">
-            <p>Analyzing channel data...</p>
-        </div>
-    `;
-    
-    // Simulate channel analysis
-    setTimeout(() => {
-        const channelName = channelUrl.split('/').pop() || 'Sample Channel';
-        const metrics = {
-            subscribers: (Math.random() * 5 + 1).toFixed(1) + 'M',
-            totalViews: (Math.random() * 50 + 10).toFixed(1) + 'M',
-            avgViews: (Math.random() * 500 + 100).toFixed(0) + 'K',
-            uploads: Math.floor(Math.random() * 500 + 100),
-            growth: '+' + (Math.random() * 20 + 5).toFixed(1) + '%'
-        };
-        
-        resultsContainer.innerHTML = `
-            <div class="channel-analysis-card">
-                <div class="channel-header">
-                    <div class="channel-avatar-large"></div>
-                    <div class="channel-info-large">
-                        <h4>${channelName}</h4>
-                        <p>Gaming & Entertainment</p>
-                    </div>
-                </div>
-                <div class="channel-metrics">
-                    <div class="metric-box">
-                        <div class="metric-value">${metrics.subscribers}</div>
-                        <div class="metric-label">Subscribers</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value">${metrics.totalViews}</div>
-                        <div class="metric-label">Total Views</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value">${metrics.avgViews}</div>
-                        <div class="metric-label">Avg Views/Video</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value">${metrics.uploads}</div>
-                        <div class="metric-label">Total Videos</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value">${metrics.growth}</div>
-                        <div class="metric-label">Growth Rate</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        analyzeBtn.disabled = false;
-        analyzeBtn.textContent = 'Analyze Channel';
-        addActivity('Channel Analyzed', '🔍');
-    }, 2000);
-}
-
-// Voice Generation
-function generateVoice() {
-    const script = document.getElementById('voice-script').value;
-    const model = document.getElementById('voice-model').value;
-    const language = document.getElementById('voice-language').value;
-    const voicePlayer = document.getElementById('voice-player');
-    const generateBtn = document.querySelector('#voice-gen-panel .btn-generate');
-    
-    if (!script.trim()) {
-        alert('Please enter a script');
-        return;
-    }
-    
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating...';
-    
-    voicePlayer.innerHTML = `
-        <div class="player-placeholder">
-            <div class="preview-icon">⏳</div>
-            <p>Generating voiceover...</p>
-        </div>
-    `;
-    
-    // Simulate voice generation
-    setTimeout(() => {
-        const duration = Math.ceil(script.length / 150); // Rough estimate
-        voicePlayer.innerHTML = `
-            <div class="player-placeholder">
-                <div class="preview-icon">🎙️</div>
-                <p>Voiceover Generated!</p>
-                <p style="font-size: 0.875rem; margin-top: 0.5rem;">Duration: ${duration}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}</p>
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 0.5rem; width: 100%;">
-                    <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center;">
-                        <button style="background: var(--primary-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">▶ Play</button>
-                        <button style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">⬇ Download</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Voiceover';
-        addActivity('Voiceover Generated', '🎙️');
-    }, 2500);
-}
-
-// Dashboard Functions
-function updateCredits(amount) {
-    const balanceElement = document.getElementById('credit-balance');
-    if (balanceElement) {
-        let currentBalance = parseInt(balanceElement.textContent);
-        currentBalance = Math.max(0, currentBalance - amount);
-        balanceElement.textContent = currentBalance;
-        
-        // Add animation
-        balanceElement.style.transform = 'scale(1.1)';
-        setTimeout(() => {
-            balanceElement.style.transform = 'scale(1)';
-        }, 300);
-    }
-}
-
-function updateImageCredits() {
-    const imageCreditsElement = document.getElementById('image-credits');
-    if (imageCreditsElement) {
-        const [used, total] = imageCreditsElement.textContent.split('/').map(Number);
-        if (used < total) {
-            imageCreditsElement.textContent = `${used + 1}/${total}`;
-        }
-    }
-}
-
-function addActivity(title, icon) {
-    const activityList = document.getElementById('activity-list');
-    if (activityList) {
-        const now = new Date();
-        const timeAgo = 'Just now';
-        
-        const activityHTML = `
-            <div class="activity-item">
-                <div class="activity-icon">${icon}</div>
-                <div class="activity-info">
-                    <div class="activity-title">${title}</div>
-                    <div class="activity-time">${timeAgo}</div>
-                </div>
-                <div class="activity-credits">-1</div>
-            </div>
-        `;
-        
-        activityList.insertAdjacentHTML('afterbegin', activityHTML);
-    }
-}
-
-function showTopup() {
-    alert('Top-up feature would open a payment modal in the full application.');
-}
-
-// Update stats on dashboard
-function updateStats() {
-    const videosCreated = document.getElementById('videos-created');
-    const nichesFound = document.getElementById('niches-found');
-    const channelsAnalyzed = document.getElementById('channels-analyzed');
-    
-    // These would be updated based on actual user activity
-    // For demo purposes, they're static
-}
-
-// Initialize dashboard stats
-document.addEventListener('DOMContentLoaded', () => {
-    updateStats();
-    
-    // Add enter key support for search inputs
-    document.getElementById('niche-search')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchNiches();
-    });
-    
-    document.getElementById('channel-url')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') analyzeChannel();
-    });
-    
-    // Removed extra interactions to match original UI exactly
-    
-    // Removed extra animations to match original UI exactly
-});
-

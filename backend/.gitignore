@@ -1,2 +1,12 @@
+# node_modules/
+# .env
+# google-service-account.json
+# *-service-account*.json
+
+
 node_modules/
 .env
+backend/.env
+youtube-config.js
+google-service-account.json
+*-service-account*.json
