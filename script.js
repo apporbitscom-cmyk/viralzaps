@@ -720,8 +720,16 @@ if (loginForm) {
                 return;
             }
         }
+        if (typeof ensureFirebaseReady === 'function') await ensureFirebaseReady();
         if (typeof isFirebaseConfigured !== 'function' || !isFirebaseConfigured()) {
-            alert('Sign-in is not configured. Add your Firebase config and enable Email/Password in Firebase Console.');
+            const why =
+                typeof getFirebaseAuthUnavailableReason === 'function'
+                    ? getFirebaseAuthUnavailableReason()
+                    : null;
+            alert(
+                why ||
+                    'Sign-in is not available. Set FIREBASE_* in backend/firebase.env, run the API, and enable Email/Password in Firebase Console.'
+            );
             return;
         }
         
@@ -791,8 +799,16 @@ if (signupForm) {
                 return;
             }
         }
+        if (typeof ensureFirebaseReady === 'function') await ensureFirebaseReady();
         if (typeof isFirebaseConfigured !== 'function' || !isFirebaseConfigured()) {
-            alert('Sign-up is not configured. Add your Firebase config and enable Email/Password in Firebase Console.');
+            const whyUp =
+                typeof getFirebaseAuthUnavailableReason === 'function'
+                    ? getFirebaseAuthUnavailableReason()
+                    : null;
+            alert(
+                whyUp ||
+                    'Sign-up is not available. Set FIREBASE_* in backend/firebase.env, run the API, and enable Email/Password in Firebase Console.'
+            );
             return;
         }
         
@@ -863,12 +879,27 @@ async function handleGoogleSignIn(button) {
             return;
         }
     }
+    if (typeof ensureFirebaseReady === 'function') await ensureFirebaseReady();
     if (typeof signInWithGoogle !== 'function' || typeof isFirebaseConfigured !== 'function') {
-        alert('Google login is not configured. Add your Firebase config in firebase-config.js.');
+        const why0 =
+            typeof getFirebaseAuthUnavailableReason === 'function'
+                ? getFirebaseAuthUnavailableReason({ google: true })
+                : null;
+        alert(
+            why0 ||
+                'Google login is not configured. Set FIREBASE_* in backend/firebase.env and run the API.'
+        );
         return;
     }
     if (!isFirebaseConfigured()) {
-        alert('Google login: Add your Firebase project config in firebase-config.js and enable Google sign-in in the Firebase Console.');
+        const whyG =
+            typeof getFirebaseAuthUnavailableReason === 'function'
+                ? getFirebaseAuthUnavailableReason({ google: true })
+                : null;
+        alert(
+            whyG ||
+                'Google login: Set FIREBASE_* in backend/firebase.env, run the API, and enable Google in Firebase Console.'
+        );
         return;
     }
     setGoogleButtonLoading(button, true);

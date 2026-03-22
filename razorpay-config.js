@@ -4,8 +4,9 @@
  * For production: set apiBaseUrl to your deployed backend URL (see HOSTING.md).
  */
 (function () {
-  var isLocal = typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  var h = typeof window !== 'undefined' ? window.location.hostname : '';
+  var isLocal =
+    h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]';
   window.RAZORPAY_CONFIG = {
     keyId: 'rzp_test_SNPPB5DHPVeZNH',
     apiBaseUrl: isLocal

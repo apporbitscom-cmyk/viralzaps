@@ -3,7 +3,9 @@
  * Run: npm install && set RAZORPAY_KEY_ID=... RAZORPAY_KEY_SECRET=... (or use .env) && npm start
  */
 
+const path = require('path');
 require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, 'firebase.env') });
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
@@ -17,7 +19,7 @@ const {
 
 const app = express();
 // Backend default port (Viralzaps frontend uses 3000)
-const PORT = process.env.PORT || 4000;
+const PORT = parseInt(process.env.PORT, 10) || 4000;
 
 // Razorpay: amount is in smallest currency unit (cents for USD, paise for INR)
 const CURRENCY = process.env.RAZORPAY_CURRENCY || 'USD';
@@ -45,7 +47,8 @@ app.get('/', (req, res) => {
       verifyPayment: 'POST /api/verify-payment',
       createSubscription: 'POST /api/create-subscription',
       verifySubscriptionPayment: 'POST /api/verify-subscription-payment',
-      geminiTrending: 'POST /api/gemini-trending'
+      geminiTrending: 'POST /api/gemini-trending',
+      firebaseConfig: 'GET /api/firebase-config'
     }
   });
 });
@@ -53,6 +56,30 @@ app.get('/', (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, razorpay: !!razorpay });
+});
+
+app.get('/api/firebase-config', (req, res) => {
+  const apiKey = (process.env.FIREBASE_API_KEY || '').trim();
+  const projectId = (process.env.FIREBASE_PROJECT_ID || '').trim();
+  if (!apiKey || !projectId) {
+    return res.status(503).json({
+      error:
+        'Set FIREBASE_API_KEY and FIREBASE_PROJECT_ID in backend/firebase.env (see firebase.env.example).'
+    });
+  }
+  res.json({
+    firebaseConfig: {
+      apiKey,
+      authDomain: (process.env.FIREBASE_AUTH_DOMAIN || '').trim(),
+      projectId,
+      storageBucket: (process.env.FIREBASE_STORAGE_BUCKET || '').trim(),
+      messagingSenderId: (process.env.FIREBASE_MESSAGING_SENDER_ID || '').trim(),
+      appId: (process.env.FIREBASE_APP_ID || '').trim(),
+      ...(process.env.FIREBASE_MEASUREMENT_ID
+        ? { measurementId: process.env.FIREBASE_MEASUREMENT_ID.trim() }
+        : {})
+    }
+  });
 });
 
 const YOUTUBE_DATA_API_KEY = process.env.YOUTUBE_API_KEY || process.env.YOUTUBE_DATA_API_KEY || '';
@@ -316,9 +343,11 @@ app.post('/api/verify-subscription-payment', async (req, res) => {
 });
 
 function startServer(port) {
-  const server = app.listen(port, () => {
-    console.log('Viralzaps backend running on http://localhost:' + port);
-    if (port !== PORT) console.warn('Update razorpay-config.js apiBaseUrl to http://localhost:' + port);
+  const p = Number(port);
+  const server = app.listen(p, () => {
+    console.log('Viralzaps backend running on http://localhost:' + p);
+    console.log('Firebase client config: GET http://localhost:' + p + '/api/firebase-config');
+    if (p !== PORT) console.warn('Update razorpay-config.js apiBaseUrl to http://localhost:' + p);
     if (!razorpay) console.warn('Razorpay keys missing – set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET');
     if (!googleSheetsConfigured()) {
       console.warn(
@@ -327,9 +356,10 @@ function startServer(port) {
     }
   });
   server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE' && port < 4010) {
-      console.warn('Port ' + port + ' in use, trying ' + (port + 1) + '...');
-      startServer(port + 1);
+    const maxTry = PORT + 10;
+    if (err.code === 'EADDRINUSE' && p < maxTry) {
+      console.warn('Port ' + p + ' in use, trying ' + (p + 1) + '...');
+      startServer(p + 1);
     } else {
       throw err;
     }

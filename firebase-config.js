@@ -1,31 +1,30 @@
 /**
- * Firebase Configuration & User Authentication
- *
- * Setup:
- * 1. Create a project at https://console.firebase.google.com
- * 2. Enable Authentication > Sign-in method: Email/Password and Google
- * 3. Replace the firebaseConfig object below with your project's config
- *    (Project Settings > General > Your apps > SDK setup and configuration)
- *
- * Production (Google OAuth):
- * 4. In Firebase Console > Authentication: click "Get started" if you see it (required once per project).
- * 5. Authentication > Sign-in method: enable "Google" (and set support email). Save.
- * 6. Authentication > Settings > Authorized domains: add your production domain if needed; localhost is listed by default.
+ * Firebase — no API keys in this file. Backend serves config from backend/firebase.env via GET /api/firebase-config.
+ * Load razorpay-config.js before this script so apiBaseUrl is set.
  */
 
-// Viralzaps app (Firebase project id unchanged)
-const firebaseConfig = {
-  apiKey: "AIzaSyBm2Q9p3AZL9HyMHzBuM-DBSC4w1BPdUzk",
-  authDomain: "viralzap-5f04e.firebaseapp.com",
-  projectId: "viralzap-5f04e",
-  storageBucket: "viralzap-5f04e.firebasestorage.app",
-  messagingSenderId: "434254312524",
-  appId: "1:434254312524:web:3108d448c682424d50b0e9",
-  measurementId: "G-7NWEY1R0L9"
-};
+function isLoopbackHostname(hostname) {
+    if (!hostname) return false;
+    return (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '::1' ||
+        hostname === '[::1]'
+    );
+}
 
-// Initialize Firebase (requires Firebase SDK script loaded first)
-// Firebase Auth only works over http://, https:// or chrome-extension:// (not file://)
+function getFirebaseApiBaseUrl() {
+    if (typeof window !== 'undefined' && window.RAZORPAY_CONFIG && window.RAZORPAY_CONFIG.apiBaseUrl) {
+        var raw = String(window.RAZORPAY_CONFIG.apiBaseUrl).replace(/\/$/, '');
+        if (raw.indexOf('YOUR-BACKEND') !== -1) return '';
+        return raw;
+    }
+    if (typeof location !== 'undefined' && isLoopbackHostname(location.hostname)) {
+        return 'http://localhost:4000';
+    }
+    return '';
+}
+
 function isSupportedAuthEnvironment() {
     if (typeof location === 'undefined') return false;
     const protocol = location.protocol;
@@ -40,111 +39,224 @@ function isSupportedAuthEnvironment() {
     }
 }
 
-let app, auth, provider;
+let app;
+let auth;
+let provider;
+let firebaseConfig = null;
+let firebaseInitPromise = null;
+let firebaseInitError = null;
 
-if (typeof firebase !== 'undefined' && isSupportedAuthEnvironment()) {
+function getApiBaseUrlCandidates() {
+    var list = [];
+    var primary = getFirebaseApiBaseUrl();
+    if (primary) list.push(primary);
+    if (typeof location !== 'undefined' && isLoopbackHostname(location.hostname)) {
+        var p;
+        for (p = 4000; p <= 4010; p++) {
+            var b = 'http://localhost:' + p;
+            if (list.indexOf(b) === -1) list.push(b);
+        }
+    }
+    return list;
+}
+
+function applyResolvedApiBaseUrl(base) {
+    if (!base || typeof window === 'undefined') return;
+    if (window.RAZORPAY_CONFIG) window.RAZORPAY_CONFIG.apiBaseUrl = base;
+    window.VIRALZAPS_PUBLIC_CONFIG = window.VIRALZAPS_PUBLIC_CONFIG || {};
+    window.VIRALZAPS_PUBLIC_CONFIG.apiBaseUrl = base;
+}
+
+async function initFirebaseFromBackend() {
+    firebaseInitError = null;
+    if (typeof firebase === 'undefined' || !isSupportedAuthEnvironment()) return;
+    var candidates = getApiBaseUrlCandidates();
+    if (!candidates.length) {
+        firebaseInitError =
+            'Backend URL is not set. Open the site on localhost or set RAZORPAY_CONFIG.apiBaseUrl.';
+        return;
+    }
+    var r = null;
+    var sawNetworkError = false;
+    var i;
+    for (i = 0; i < candidates.length; i++) {
+        var base = candidates[i];
+        try {
+            var resp = await fetch(base + '/api/firebase-config', { credentials: 'include' });
+            r = resp;
+            if (resp.status === 404) {
+                continue;
+            }
+            applyResolvedApiBaseUrl(base);
+            break;
+        } catch (e) {
+            sawNetworkError = true;
+            continue;
+        }
+    }
+    if (!r) {
+        firebaseInitError = sawNetworkError
+            ? 'Could not reach the Viralzaps API. Start the backend: cd backend && npm start (default port 4000).'
+            : 'No API base URL to try. Set RAZORPAY_CONFIG.apiBaseUrl or open the app on localhost.';
+        return;
+    }
+    if (!r.ok) {
+        var errBody = {};
+        try {
+            errBody = await r.json();
+        } catch (e2) {
+            /* ignore */
+        }
+        var serverMsg = errBody && errBody.error ? String(errBody.error) : '';
+        if (r.status === 404) {
+            firebaseInitError =
+                'GET /api/firebase-config returned 404 on every port tried (4000–4010). Something else may be bound to 4000, or the backend is an old build. Fix: stop stray processes, then from viralzap/backend run npm start using the latest server.js.';
+            return;
+        }
+        if (r.status === 503) {
+            firebaseInitError =
+                serverMsg ||
+                'Set FIREBASE_API_KEY and FIREBASE_PROJECT_ID in backend/firebase.env, then restart the API.';
+        } else {
+            firebaseInitError = serverMsg || 'Could not load Firebase config (HTTP ' + r.status + ').';
+        }
+        return;
+    }
+    var data;
+    try {
+        data = await r.json();
+    } catch (e) {
+        firebaseInitError = 'Invalid response from /api/firebase-config.';
+        return;
+    }
+    var cfg = data.firebaseConfig || data;
+    if (!cfg || !cfg.apiKey) {
+        firebaseInitError = 'Firebase config response was missing apiKey.';
+        return;
+    }
+    firebaseConfig = cfg;
     app = firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     provider = new firebase.auth.GoogleAuthProvider();
-
-    // Production OAuth: always show account picker (avoids silent re-use of wrong account)
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
+    provider.setCustomParameters({ prompt: 'select_account' });
 }
 
-/** Returns a short message if auth cannot run in this environment (e.g. file:// or no storage); otherwise null */
+if (typeof firebase !== 'undefined' && isSupportedAuthEnvironment()) {
+    firebaseInitPromise = initFirebaseFromBackend();
+}
+
+async function ensureFirebaseReady() {
+    if (firebaseInitPromise) {
+        try {
+            await firebaseInitPromise;
+        } catch (e) {
+            /* ignore */
+        }
+    }
+}
+
 function getAuthUnsupportedReason() {
     if (typeof location !== 'undefined' && location.protocol === 'file:') {
-        return 'Firebase Auth requires the app to run over HTTP. Open the app via a local server (e.g. run in terminal: npx serve, or use Live Server in VS Code) instead of opening the HTML file directly.';
+        return 'Firebase Auth requires the app to run over HTTP. Use a local server (e.g. npx serve) instead of opening the file directly.';
     }
     if (!isSupportedAuthEnvironment()) {
-        return 'Web storage is disabled or this environment is not supported. Enable cookies/local storage or use a normal browser window.';
+        return 'Web storage is disabled or this environment is not supported.';
     }
     return null;
 }
 
-/** True if Firebase Auth is initialized with a real config (not placeholders) */
 function isFirebaseConfigured() {
-    return typeof auth !== 'undefined' && auth != null &&
-        firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY';
+    return (
+        typeof auth !== 'undefined' &&
+        auth != null &&
+        firebaseConfig != null &&
+        !!firebaseConfig.apiKey
+    );
 }
 
-/**
- * Create a new user with email and password
- * @param {string} email
- * @param {string} password
- * @returns {Promise<firebase.auth.UserCredential>}
- */
+function getFirebaseAuthUnavailableReason(options) {
+    if (isFirebaseConfigured()) return null;
+    var google = options && options.google;
+    var suffix = google
+        ? ' In Firebase Console: Authentication → Sign-in method → enable Google.'
+        : '';
+    if (firebaseInitError) return firebaseInitError + suffix;
+    return (
+        'Firebase did not initialize. Set FIREBASE_* in backend/firebase.env, run the API, and enable sign-in in the Firebase Console.' +
+        suffix
+    );
+}
+
 async function signUpWithEmail(email, password) {
+    await ensureFirebaseReady();
     if (!auth) throw new Error('Firebase Auth not initialized');
     return auth.createUserWithEmailAndPassword(email, password);
 }
 
-/**
- * Sign in with email and password
- * @param {string} email
- * @param {string} password
- * @returns {Promise<firebase.auth.UserCredential>}
- */
 async function signInWithEmail(email, password) {
+    await ensureFirebaseReady();
     if (!auth) throw new Error('Firebase Auth not initialized');
     return auth.signInWithEmailAndPassword(email, password);
 }
 
-/**
- * Sign in with Google (popup). For production, ensure your domain is in
- * Firebase Console > Authentication > Settings > Authorized domains.
- * @returns {Promise<firebase.auth.UserCredential>}
- */
 async function signInWithGoogle() {
+    await ensureFirebaseReady();
     if (!auth || !provider) throw new Error('Firebase Auth not initialized');
     return auth.signInWithPopup(provider);
 }
 
-/**
- * Check for redirect result (use after page load if you offer signInWithRedirect as fallback).
- * Call once on app init: handleGoogleRedirectResult().then(...)
- * @returns {Promise<firebase.auth.UserCredential|null>}
- */
 function getGoogleRedirectResult() {
-    if (!auth) return Promise.resolve(null);
+    if (!auth) {
+        if (firebaseInitPromise) {
+            return firebaseInitPromise.then(function () {
+                return auth ? auth.getRedirectResult() : Promise.resolve(null);
+            });
+        }
+        return Promise.resolve(null);
+    }
     return auth.getRedirectResult();
 }
 
-/**
- * Sign out the current user
- * @returns {Promise<void>}
- */
 async function signOut() {
+    await ensureFirebaseReady();
     if (!auth) throw new Error('Firebase Auth not initialized');
     return auth.signOut();
 }
 
-/**
- * Get the currently signed-in user (or null)
- * @returns {firebase.User|null}
- */
 function getCurrentUser() {
     return auth ? auth.currentUser : null;
 }
 
-/**
- * Listen for auth state changes (signed in / signed out)
- * @param {(user: firebase.User|null) => void} callback
- * @returns {firebase.Unsubscribe}
- */
 function onAuthStateChanged(callback) {
-    if (!auth) return () => {};
-    return auth.onAuthStateChanged(callback);
+    if (!firebaseInitPromise) {
+        try {
+            callback(null);
+        } catch (e) {
+            /* ignore */
+        }
+        return function () {};
+    }
+    var dispose = null;
+    var ready = firebaseInitPromise.then(function () {
+        if (auth) {
+            dispose = auth.onAuthStateChanged(callback);
+        } else {
+            try {
+                callback(null);
+            } catch (e) {
+                /* ignore */
+            }
+        }
+    });
+    return function () {
+        ready.then(function () {
+            if (dispose) dispose();
+        });
+    };
 }
 
-/**
- * Send password reset email
- * @param {string} email
- * @returns {Promise<void>}
- */
 async function sendPasswordResetEmail(email) {
+    await ensureFirebaseReady();
     if (!auth) throw new Error('Firebase Auth not initialized');
     return auth.sendPasswordResetEmail(email);
 }
