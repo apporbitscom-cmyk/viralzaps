@@ -6,8 +6,13 @@
 
 node_modules/
 .env
+.env.example
 backend/.env
 firebase.env
-youtube-config.js
+firebase.env.example
+HOSTING.md
+README.md
+TECH-STACK.md
 google-service-account.json
 *-service-account*.json
+data/

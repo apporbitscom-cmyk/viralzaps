@@ -66,6 +66,8 @@ body {
     overflow-x: hidden;
     background-color: var(--bg-primary);
     transition: background-color 0.4s ease, color 0.4s ease;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 .dashboard-body {
@@ -75,7 +77,8 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
 }
 
 /* Navigation */
@@ -89,6 +92,9 @@ body {
     border-bottom: 1px solid var(--border-color);
     z-index: 1000;
     padding: 1rem 0;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -100,6 +106,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    gap: 0.75rem;
 }
 
 .logo {
@@ -109,6 +117,44 @@ body {
     color: var(--primary-color);
     font-size: 1.5rem;
     font-weight: 800;
+}
+
+/* Animated promo line under the top-left logo */
+.logo-animated {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+}
+
+.logo-promo {
+    display: block;
+    max-width: 42vw;
+}
+
+.logo-promo-text {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    /* Reveal left-to-right by animating the available width */
+    max-width: 0;
+    animation: logoPromoReveal 2.8s steps(40, end) forwards;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+}
+
+@keyframes logoPromoReveal {
+    from { max-width: 0; }
+    to { max-width: 38ch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-promo-text {
+        animation: none;
+        max-width: 100%;
+    }
 }
 
 .logo-img {
@@ -231,6 +277,12 @@ body {
     background: none;
     border: none;
     cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-menu-toggle span {
@@ -254,15 +306,23 @@ body {
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.3s ease-out, background-color 0.3s ease;
+        display: flex;
+        visibility: hidden;
     }
 
     [data-theme="dark"] .nav-links {
         background: var(--bg-secondary);
     }
 
+    .nav-links:not(.active) {
+        pointer-events: none;
+    }
+
     .nav-links.active {
         max-height: 500px;
         display: flex;
+        visibility: visible;
+        pointer-events: auto;
     }
 
     .nav-links li {
@@ -411,10 +471,28 @@ body {
 }
 
 .mockup-chart {
-    height: 200px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
     border-radius: 0.5rem;
-    opacity: 0.8;
+    overflow: hidden;
+    background: var(--bg-tertiary, #1a1a1e);
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    margin: 0;
+}
+
+.mockup-chart.mockup-ugc {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .mockup-chart.mockup-ugc {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.mockup-ugc-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .mockup-stats {
@@ -1547,10 +1625,6 @@ button.btn-plan:disabled {
 
 /* Responsive Design */
 @media (max-width: 968px) {
-    .nav-links {
-        display: none;
-    }
-
     .mobile-menu-toggle {
         display: flex;
     }
@@ -2649,6 +2723,10 @@ button.btn-plan:disabled {
     font-size: 0.875rem;
 }
 
+.form-options--right {
+    justify-content: flex-end;
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -2678,11 +2756,33 @@ button.btn-plan:disabled {
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    text-align: right;
 }
 
 .forgot-password:hover {
     color: var(--primary-dark);
     text-decoration: underline;
+}
+
+.forgot-password:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.forgot-password-feedback {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--text-secondary, #5c5c5c);
+}
+
+.forgot-password-feedback--success {
+    color: var(--success-color, #0d9488);
 }
 
 .btn-login {
@@ -3099,5 +3199,14 @@ html {
 
 .post-auth-continue-banner .settings-btn-primary {
     margin-top: 0;
+}
+
+/* Mobile: reduce unintended zoom on input focus (iOS Safari) */
+@media (max-width: 768px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+    select,
+    textarea {
+        font-size: max(16px, 1rem);
+    }
 }
 

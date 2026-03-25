@@ -65,6 +65,9 @@ function applyResolvedApiBaseUrl(base) {
     if (window.RAZORPAY_CONFIG) window.RAZORPAY_CONFIG.apiBaseUrl = base;
     window.VIRALZAPS_PUBLIC_CONFIG = window.VIRALZAPS_PUBLIC_CONFIG || {};
     window.VIRALZAPS_PUBLIC_CONFIG.apiBaseUrl = base;
+    if (typeof window.reloadViralzapsYoutubeApiKey === 'function') {
+        window.reloadViralzapsYoutubeApiKey();
+    }
 }
 
 async function initFirebaseFromBackend() {

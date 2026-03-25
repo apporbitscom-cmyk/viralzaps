@@ -35,6 +35,62 @@
 })();
 
 (function () {
+    var mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 768px)') : null;
+    var toggle = document.getElementById('dashboard-menu-toggle');
+    var sidebar = document.getElementById('dashboard-sidebar');
+    var backdrop = document.getElementById('dashboard-sidebar-backdrop');
+    if (!toggle || !sidebar || !backdrop) return;
+
+    function setNavOpen(open) {
+        sidebar.classList.toggle('is-open', open);
+        backdrop.classList.toggle('is-visible', open);
+        backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+        document.body.classList.toggle('dashboard-nav-open', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    function closeNav() {
+        setNavOpen(false);
+    }
+
+    toggle.addEventListener('click', function () {
+        setNavOpen(!sidebar.classList.contains('is-open'));
+    });
+
+    backdrop.addEventListener('click', closeNav);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeNav();
+    });
+
+    sidebar.addEventListener('click', function (e) {
+        var t = e.target;
+        if (window.innerWidth > 768) return;
+        if (t.closest('.sidebar-link') || t.closest('.sidebar-sublink')) {
+            closeNav();
+            return;
+        }
+        if (t.closest('#sidebar-logout')) closeNav();
+    });
+
+    if (mq && typeof mq.addEventListener === 'function') {
+        mq.addEventListener('change', function (e) {
+            if (!e.matches) closeNav();
+        });
+    } else if (mq && mq.addListener) {
+        mq.addListener(function (e) {
+            if (!e.matches) closeNav();
+        });
+    }
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) closeNav();
+    });
+})();
+
+(function () {
     // Copy legacy localStorage keys viralzap_* → viralzaps_* (one-time per key)
     (function migrateLegacyViralzapKeys() {
         var pairs = [
@@ -746,6 +802,26 @@
                 '<p class="trending-topics-message trending-youtube-live-error">' + escapeHtml(msg || 'Something went wrong.') + '</p>';
         }
 
+        function resolveActivePlanForQuota() {
+            try {
+                var raw = localStorage.getItem('subscription_plan');
+                if (!raw) return 'plan_15d';
+                var parsed = JSON.parse(raw);
+                var p = parsed && parsed.plan ? String(parsed.plan).trim() : '';
+                return p || 'plan_15d';
+            } catch (e) {
+                return 'plan_15d';
+            }
+        }
+
+        function resolveActiveUserIdForQuota() {
+            var u = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+            if (!u) return 'anonymous';
+            if (u.uid) return String(u.uid).trim();
+            if (u.email) return String(u.email).trim().toLowerCase();
+            return 'anonymous';
+        }
+
         function runSearch() {
             var q = inp ? inp.value.trim() : '';
             if (q.length < 2) {
@@ -758,7 +834,13 @@
                 apiBaseUrl +
                     '/api/youtube-trending-topics-search?q=' +
                     encodeURIComponent(q) +
-                    '&regionCode=IN&maxResults=24'
+                    '&regionCode=IN&maxResults=24',
+                {
+                    headers: {
+                        'X-User-Id': resolveActiveUserIdForQuota(),
+                        'X-User-Plan': resolveActivePlanForQuota()
+                    }
+                }
             )
                 .then(function (r) {
                     return r.json().then(function (j) {
@@ -767,14 +849,20 @@
                 })
                 .then(function (data) {
                     if (!data.ok) {
-                        renderError(data.json && data.json.error ? data.json.error : 'Request failed');
+                        var msg =
+                            data.json && data.json.message
+                                ? data.json.message
+                                : data.json && data.json.error
+                                  ? data.json.error
+                                  : 'Request failed';
+                        renderError(msg);
                         return;
                     }
                     var items = data.json && data.json.items ? data.json.items : [];
                     renderResults(items);
                 })
                 .catch(function () {
-                    renderError('Could not reach the server. Start the backend and set YOUTUBE_API_KEY in .env.');
+                    renderError('Could not reach the server. Start the backend and try again.');
                 });
         }
 
@@ -881,7 +969,7 @@
                 return;
             }
             if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-                if (resultsEl) resultsEl.innerHTML = '<p class="analytics-message analytics-error">Add your YouTube API key in <code>youtube-config.js</code> to load analytics.</p>';
+                if (resultsEl) resultsEl.innerHTML = '<p class="analytics-message analytics-error">Could not load analytics. Refresh the page or try again.</p>';
                 return;
             }
             if (resultsEl) resultsEl.innerHTML = '<p class="analytics-message analytics-loading">Loading channel and analytics...</p>';
@@ -1129,7 +1217,7 @@
                 return;
             }
             if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-                if (resultEl) resultEl.innerHTML = '<p class="find-channel-result-msg find-channel-result-err">Add your YouTube API key in <code>youtube-config.js</code> to search for the channel.</p>';
+                if (resultEl) resultEl.innerHTML = '<p class="find-channel-result-msg find-channel-result-err">Could not search channels. Refresh the page or try again.</p>';
                 return;
             }
             if (resultEl) resultEl.innerHTML = '<p class="find-channel-result-msg find-channel-loading">Reading screenshot and searching for channel...</p>';
@@ -1485,7 +1573,7 @@
         var maxVideos = (options && options.maxVideos) ? Math.min(100, Math.max(1, parseInt(options.maxVideos, 10) || 10)) : 10;
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
             if (emptyState) emptyState.style.display = 'none';
-            resultsEl.innerHTML = '<p class="scraper-message scraper-error">Add your YouTube API key in <code>youtube-config.js</code>.</p>';
+            resultsEl.innerHTML = '<p class="scraper-message scraper-error">Could not load this section. Refresh the page or try again.</p>';
             return;
         }
         var parsed = parseYouTubeUrl(url);
@@ -1611,12 +1699,10 @@
     var settingsEyeOffSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
 
     var SUBSCRIPTION_PLAN_STORAGE_KEY = 'subscription_plan';
-    var TRIAL_STORAGE_KEY = 'viralzaps_trial_start';
     var BILLING_HISTORY_STORAGE_KEY = 'viralzaps_billing_history';
     var CREDITS_PURCHASED_KEY = 'viralzaps_credits_purchased';
     var CREDITS_USED_KEY = 'viralzaps_credits_used';
-    var TRIAL_DAYS = 15;
-    // New plans: 15 days ₹99, 6 months ₹999, Lifetime ₹19999 (legacy starter/professional/ultimate kept for backward compat)
+    // New plans: 15 days ₹99 (+100 credits/day), 6 months ₹999 (+200 credits/day), Lifetime ₹19999.
     var SUBSCRIPTION_PLAN_NAMES = {
         starter: 'Viralzaps Starter Monthly',
         professional: 'Viralzaps Professional Monthly',
@@ -1716,17 +1802,13 @@
     function getCreditsState() {
         try {
             var plan = getStoredSubscriptionPlan();
-            var trial = getTrialState();
             var planKey;
             var planCredits;
             if (plan && plan.plan && CREDITS_BY_PLAN[plan.plan] != null) {
                 planKey = plan.plan;
                 planCredits = CREDITS_BY_PLAN[plan.plan];
-            } else if (trial && trial.onTrial) {
-                planKey = 'trial';
-                planCredits = 95;
             } else {
-                planKey = 'trial_expired';
+                planKey = 'inactive';
                 planCredits = 0;
             }
             var purchased = getPurchasedCredits();
@@ -1742,13 +1824,22 @@
                 availableCredits: available
             };
         } catch (e) {
+            var purchased2 = 0;
+            try {
+                purchased2 = getPurchasedCredits();
+            } catch (e2) {}
+            var used2 = 0;
+            try {
+                used2 = getUsedCredits();
+            } catch (e3) {}
+            var available2 = Math.max(0, (Number(purchased2) || 0) - (Number(used2) || 0));
             return {
-                planKey: 'starter',
-                planCredits: CREDITS_BY_PLAN.starter,
-                purchasedCredits: getPurchasedCredits(),
-                usedCredits: getUsedCredits(),
-                totalCredits: CREDITS_BY_PLAN.starter,
-                availableCredits: CREDITS_BY_PLAN.starter
+                planKey: 'inactive',
+                planCredits: 0,
+                purchasedCredits: purchased2,
+                usedCredits: used2,
+                totalCredits: Number(purchased2) || 0,
+                availableCredits: available2
             };
         }
     }
@@ -1765,44 +1856,14 @@
                 barEl.style.width = pct + '%';
             }
             if (badgeEl) {
-                var badgeText = state.planKey === 'trial' ? 'TRIAL' : (state.planKey === 'trial_expired' ? 'EXPIRED' : (state.planKey || 'STARTER').toUpperCase());
+                var badgeText = (state.planKey || 'inactive').toUpperCase();
                 badgeEl.textContent = badgeText;
-                badgeEl.className = 'usage-plan-badge usage-plan-badge-' + (state.planKey || 'starter').replace('_', '-');
+                var extraClass = state.planKey && /^plan_/.test(state.planKey) ? ' usage-plan-badge-' + state.planKey.replace(/^plan_/, 'plan-') : '';
+                badgeEl.className = 'usage-plan-badge' + extraClass;
             }
         } catch (e) {
             console.warn('updateUsageCreditsUI:', e);
         }
-    }
-
-    function getTrialStart() {
-        try {
-            var raw = localStorage.getItem(TRIAL_STORAGE_KEY);
-            return raw ? raw : null;
-        } catch (e) { return null; }
-    }
-
-    function ensureTrialStart() {
-        if (getStoredSubscriptionPlan()) return;
-        if (getTrialStart()) return;
-        try {
-            localStorage.setItem(TRIAL_STORAGE_KEY, new Date().toISOString());
-        } catch (e) {}
-    }
-
-    function getTrialState() {
-        var start = getTrialStart();
-        if (!start) return null;
-        var startDate = new Date(start);
-        if (isNaN(startDate.getTime())) return null;
-        var now = new Date();
-        var endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + TRIAL_DAYS);
-        var daysLeft = Math.ceil((endDate - now) / (24 * 60 * 60 * 1000));
-        return {
-            onTrial: now < endDate,
-            trialEndsAt: endDate,
-            daysLeft: daysLeft > 0 ? daysLeft : 0
-        };
     }
 
     function getStoredSubscriptionPlan() {
@@ -1834,7 +1895,6 @@
 
     function updateSubscriptionPlanUI() {
         var plan = getStoredSubscriptionPlan();
-        var trial = getTrialState();
         var nameEl = document.querySelector('.subscription-plan-name');
         var priceEl = document.querySelector('.subscription-plan-price');
         var renewalEl = document.querySelector('.subscription-plan-renewal');
@@ -1848,16 +1908,8 @@
                 badgeEl.textContent = 'ACTIVE';
                 badgeEl.className = 'subscription-plan-badge subscription-plan-badge-active';
             }
-        } else if (trial && trial.onTrial) {
-            nameEl.textContent = 'Free trial';
-            if (priceEl) priceEl.textContent = '—';
-            if (renewalEl) renewalEl.innerHTML = '<svg class="subscription-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>' + trial.daysLeft + ' days left';
-            if (badgeEl) {
-                badgeEl.textContent = 'TRIAL';
-                badgeEl.className = 'subscription-plan-badge subscription-plan-badge-trial';
-            }
         } else {
-            nameEl.textContent = trial ? 'Trial expired' : 'No active plan';
+            nameEl.textContent = 'No active plan';
             if (priceEl) priceEl.textContent = '—';
             if (renewalEl) renewalEl.innerHTML = 'Choose a plan to continue';
             if (badgeEl) {
@@ -1868,12 +1920,10 @@
     }
 
     function showSettingsView(container) {
-        ensureTrialStart();
         var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
         var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
         var userEmail = (user && user.email) ? user.email : '';
         var subPlan = getStoredSubscriptionPlan();
-        var trial = getTrialState();
         var subPlanName, subPlanPrice, subPlanBadge, subPlanBadgeClass, subRenewal;
         if (subPlan) {
             subPlanName = SUBSCRIPTION_PLAN_NAMES[subPlan.plan] || subPlan.planName || 'Active Plan';
@@ -1881,14 +1931,8 @@
             subPlanBadge = 'ACTIVE';
             subPlanBadgeClass = 'subscription-plan-badge subscription-plan-badge-active';
             subRenewal = subPlan.plan === 'plan_lifetime' ? 'Lifetime access' : ('Valid until ' + formatRenewalDate(subPlan.activatedAt, subPlan.plan));
-        } else if (trial && trial.onTrial) {
-            subPlanName = 'Free trial';
-            subPlanPrice = '—';
-            subPlanBadge = 'TRIAL';
-            subPlanBadgeClass = 'subscription-plan-badge subscription-plan-badge-trial';
-            subRenewal = trial.daysLeft + ' days left';
         } else {
-            subPlanName = trial ? 'Trial expired' : 'No active plan';
+            subPlanName = 'No active plan';
             subPlanPrice = '—';
             subPlanBadge = 'INACTIVE';
             subPlanBadgeClass = 'subscription-plan-badge';
@@ -1988,7 +2032,7 @@
             '            <span class="release-date">Jan 2025</span>' +
             '            <div class="release-body">' +
             '              <strong class="release-title">Razorpay payments</strong>' +
-            '              <p class="release-desc">Start with a 15-day free trial, then choose 15 Days (₹99), 6 Months (₹999), or Lifetime (₹19,999).</p>' +
+            '              <p class="release-desc">Choose a plan to continue: 15 Days (₹99 + 100 credits/day), 6 Months (₹999 + 200 credits/day), or Lifetime (₹19,999).</p>' +
             '            </div>' +
             '          </li>' +
             '        </ul>' +
@@ -2125,8 +2169,8 @@
         var planAmounts = { plan_15d: 9900, plan_6m: 99900, plan_lifetime: 1999900 };
         var planShortNames = { plan_15d: '15 Days', plan_6m: '6 Months', plan_lifetime: 'Lifetime' };
         var planFeatures = {
-            plan_15d: '15 days access',
-            plan_6m: '6 months access',
+            plan_15d: '15 days access + 100 credits/day',
+            plan_6m: '6 months access + 200 credits/day',
             plan_lifetime: 'Lifetime access'
         };
 
@@ -2158,14 +2202,14 @@
                 '<div class="plans-modal-content">' +
                 '  <button type="button" class="plans-modal-close" id="plans-modal-close" aria-label="Close">×</button>' +
                 '  <h2 class="plans-modal-title">Choose your plan</h2>' +
-                '  <p class="plans-modal-subtitle">After your 15-day free trial, pick a plan and complete payment to continue.</p>' +
+                '  <p class="plans-modal-subtitle">Pick a plan and complete payment to continue.</p>' +
                 '  <div class="plans-grid">' +
                 '    <div class="plan-card" data-plan="plan_15d">' +
                 '      <div class="plan-card-header">' +
                 '        <h3 class="plan-card-name">15 Days</h3>' +
                 '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹99</span><span class="plan-card-period">/15 days</span></div>' +
                 '      </div>' +
-                '      <p class="plan-card-features">15 days access</p>' +
+                '      <p class="plan-card-features">15 days access + 100 credits/day</p>' +
                 '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Activate</button>' +
                 '    </div>' +
                 '    <div class="plan-card plan-card-featured" data-plan="plan_6m">' +
@@ -2174,7 +2218,7 @@
                 '        <h3 class="plan-card-name">6 Months</h3>' +
                 '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹999</span><span class="plan-card-period">/6 months</span></div>' +
                 '      </div>' +
-                '      <p class="plan-card-features">6 months access</p>' +
+                '      <p class="plan-card-features">6 months access + 200 credits/day</p>' +
                 '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Activate</button>' +
                 '    </div>' +
                 '    <div class="plan-card" data-plan="plan_lifetime">' +
@@ -3013,7 +3057,7 @@
     function searchYouTubeChannels(query, mode, resultsEl) {
         if (!resultsEl) return;
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="similar-message similar-error">Add your YouTube API key in <code>youtube-config.js</code>. Get one from Google Cloud Console and enable YouTube Data API v3.</p>';
+            resultsEl.innerHTML = '<p class="similar-message similar-error">Could not load YouTube data. Refresh the page or try again in a moment.</p>';
             return;
         }
         resultsEl.innerHTML = '<p class="similar-message similar-loading">' + (mode === 'shorts' ? 'Finding shorts channels...' : 'Finding longform channels...') + '</p>';
@@ -3128,7 +3172,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
         var order = opts.order === 'date' ? 'date' : 'viewCount';
         var videoDuration = opts.videoDuration === 'short' ? 'short' : (opts.videoDuration === 'long' ? 'long' : '');
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="viral-message viral-error">Add your YouTube API key in <code>youtube-config.js</code>. Get one from Google Cloud Console and enable YouTube Data API v3.</p>';
+            resultsEl.innerHTML = '<p class="viral-message viral-error">Could not load YouTube data. Refresh the page or try again in a moment.</p>';
             return;
         }
         var advancedFilters = opts.advancedFilters || null;
@@ -3230,7 +3274,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
     function searchYouTubeLongform(query, resultsEl) {
         if (!resultsEl) return;
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="longform-message longform-error">Add your YouTube API key in <code>youtube-config.js</code>. Get one from Google Cloud Console and enable YouTube Data API v3.</p>';
+            resultsEl.innerHTML = '<p class="longform-message longform-error">Could not load YouTube data. Refresh the page or try again in a moment.</p>';
             return;
         }
         resultsEl.innerHTML = '<p class="longform-message longform-loading">Searching...</p>';
@@ -3297,16 +3341,113 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
             });
     }
 
+    /** Alternate short + long results for Home "All" tab (unfiltered search skews heavily to Shorts). */
+    function interleaveHomeShortAndLong(shortItems, longItems, maxLen) {
+        maxLen = maxLen || 12;
+        var seen = {};
+        var out = [];
+        var i = 0;
+        var j = 0;
+        while (out.length < maxLen && (i < shortItems.length || j < longItems.length)) {
+            if (i < shortItems.length) {
+                var s = shortItems[i++];
+                var sid = s.id && s.id.videoId;
+                if (sid && !seen[sid]) {
+                    seen[sid] = true;
+                    out.push(s);
+                }
+            }
+            if (out.length >= maxLen) break;
+            if (j < longItems.length) {
+                var l = longItems[j++];
+                var lid = l.id && l.id.videoId;
+                if (lid && !seen[lid]) {
+                    seen[lid] = true;
+                    out.push(l);
+                }
+            }
+        }
+        return out;
+    }
+
+    function renderHomeVideoGrid(items, resultsEl) {
+        var ids = items.map(function (item) {
+            return item.id && item.id.videoId ? item.id.videoId : '';
+        }).filter(Boolean);
+        fetchVideoStatistics(ids).then(function (statsMap) {
+            var html = '<div class="home-grid">';
+            items.forEach(function (item) {
+                var id = item.id && item.id.videoId ? item.id.videoId : '';
+                var snip = item.snippet || {};
+                var title = snip.title || 'Untitled';
+                var channel = snip.channelTitle || '';
+                var thumb = (snip.thumbnails && snip.thumbnails.medium) ? snip.thumbnails.medium.url : (snip.thumbnails && snip.thumbnails.default ? snip.thumbnails.default.url : '');
+                var link = id ? 'https://www.youtube.com/watch?v=' + id : '#';
+                var stats = statsMap[id] || {};
+                var viewsStr = stats.viewCount !== undefined ? formatCount(stats.viewCount) + ' views' : '';
+                html += '<a class="home-card" href="' + link + '" target="_blank" rel="noopener noreferrer">' +
+                    '<div class="home-card-thumb"><img src="' + escapeHtml(thumb) + '" alt="" loading="lazy"></div>' +
+                    '<div class="home-card-body">' +
+                    '<h3 class="home-card-title">' + escapeHtml(title) + '</h3>' +
+                    '<p class="home-card-channel">' + escapeHtml(channel) + '</p>' +
+                    (viewsStr ? '<p class="home-card-views">' + escapeHtml(viewsStr) + '</p>' : '') +
+                    '</div></a>';
+            });
+            html += '</div>';
+            resultsEl.innerHTML = html;
+        });
+    }
+
     function searchYouTubeHome(query, resultsEl, opts) {
         if (!resultsEl) return;
         opts = opts || {};
+        var categoryId = opts.categoryId || 'all';
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="home-message home-error">Add your YouTube API key in <code>youtube-config.js</code>. Get one from Google Cloud Console and enable YouTube Data API v3.</p>';
+            resultsEl.innerHTML = '<p class="home-message home-error">Could not load YouTube data. Refresh the page or try again in a moment.</p>';
             return;
         }
         resultsEl.innerHTML = '<p class="home-message home-loading">Loading videos...</p>';
+        var key = encodeURIComponent(YOUTUBE_API_KEY);
+        var qEnc = encodeURIComponent(query);
+
+        function homeSearchUrl(extra) {
+            return 'https://www.googleapis.com/youtube/v3/search?' +
+                'part=snippet&type=video&maxResults=6&key=' + key + '&q=' + qEnc + (extra ? '&' + extra : '');
+        }
+
+        if (categoryId === 'all') {
+            Promise.all([
+                fetch(homeSearchUrl('videoDuration=short')).then(function (res) { return res.json(); }),
+                fetch(homeSearchUrl('videoDuration=long')).then(function (res) { return res.json(); })
+            ])
+                .then(function (pair) {
+                    var d0 = pair[0];
+                    var d1 = pair[1];
+                    var shortItems = (!d0 || d0.error) ? [] : (d0.items || []);
+                    var longItems = (!d1 || d1.error) ? [] : (d1.items || []);
+                    if (d0 && d0.error && d1 && d1.error) {
+                        var msg = d0.error.message || 'API error';
+                        if (d0.error.errors && d0.error.errors[0]) {
+                            msg = d0.error.errors[0].message || msg;
+                        }
+                        resultsEl.innerHTML = '<p class="home-message home-error">' + escapeHtml(msg) + '</p>';
+                        return;
+                    }
+                    var items = interleaveHomeShortAndLong(shortItems, longItems, 12);
+                    if (items.length === 0) {
+                        resultsEl.innerHTML = '<p class="home-message">No videos found. Try another category.</p>';
+                        return;
+                    }
+                    renderHomeVideoGrid(items, resultsEl);
+                })
+                .catch(function () {
+                    resultsEl.innerHTML = '<p class="home-message home-error">Network error. Check your connection and try again.</p>';
+                });
+            return;
+        }
+
         var url = 'https://www.googleapis.com/youtube/v3/search?' +
-            'part=snippet&type=video&maxResults=12&key=' + encodeURIComponent(YOUTUBE_API_KEY) + '&q=' + encodeURIComponent(query);
+            'part=snippet&type=video&maxResults=12&key=' + key + '&q=' + qEnc;
         fetch(url)
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -3323,31 +3464,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
                     resultsEl.innerHTML = '<p class="home-message">No videos found. Try another category.</p>';
                     return;
                 }
-                var ids = items.map(function (item) {
-                    return item.id && item.id.videoId ? item.id.videoId : '';
-                }).filter(Boolean);
-                fetchVideoStatistics(ids).then(function (statsMap) {
-                    var html = '<div class="home-grid">';
-                    items.forEach(function (item) {
-                        var id = item.id && item.id.videoId ? item.id.videoId : '';
-                        var snip = item.snippet || {};
-                        var title = snip.title || 'Untitled';
-                        var channel = snip.channelTitle || '';
-                        var thumb = (snip.thumbnails && snip.thumbnails.medium) ? snip.thumbnails.medium.url : (snip.thumbnails && snip.thumbnails.default ? snip.thumbnails.default.url : '');
-                        var link = id ? 'https://www.youtube.com/watch?v=' + id : '#';
-                        var stats = statsMap[id] || {};
-                        var viewsStr = stats.viewCount !== undefined ? formatCount(stats.viewCount) + ' views' : '';
-                        html += '<a class="home-card" href="' + link + '" target="_blank" rel="noopener noreferrer">' +
-                            '<div class="home-card-thumb"><img src="' + escapeHtml(thumb) + '" alt="" loading="lazy"></div>' +
-                            '<div class="home-card-body">' +
-                            '<h3 class="home-card-title">' + escapeHtml(title) + '</h3>' +
-                            '<p class="home-card-channel">' + escapeHtml(channel) + '</p>' +
-                            (viewsStr ? '<p class="home-card-views">' + escapeHtml(viewsStr) + '</p>' : '') +
-                            '</div></a>';
-                    });
-                    html += '</div>';
-                    resultsEl.innerHTML = html;
-                });
+                renderHomeVideoGrid(items, resultsEl);
             })
             .catch(function (err) {
                 resultsEl.innerHTML = '<p class="home-message home-error">Network error. Check your connection and try again.</p>';
@@ -3357,7 +3474,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
     function searchYouTubeShorts(query, resultsEl) {
         if (!resultsEl) return;
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="shorts-message shorts-error">Add your YouTube API key in <code>youtube-config.js</code>. Get one from Google Cloud Console and enable YouTube Data API v3.</p>';
+            resultsEl.innerHTML = '<p class="shorts-message shorts-error">Could not load YouTube data. Refresh the page or try again in a moment.</p>';
             return;
         }
         resultsEl.innerHTML = '<p class="shorts-message shorts-loading">Searching...</p>';
@@ -3446,7 +3563,7 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
     function renderPickedByViralzapsView(resultsEl) {
         if (!resultsEl) return;
         if (typeof YOUTUBE_API_KEY === 'undefined' || !YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-            resultsEl.innerHTML = '<p class="viral-message viral-error">Add your YouTube API key in <code>youtube-config.js</code> to load Picked by Viralzaps.</p>';
+            resultsEl.innerHTML = '<p class="viral-message viral-error">Could not load this section. Refresh the page or try again.</p>';
             return;
         }
         resultsEl.innerHTML = '<p class="viral-message viral-loading">Loading Picked by Viralzaps...</p>';
@@ -3712,10 +3829,10 @@ html += '<button type="button" class="similar-copy-links-btn" data-links="' + es
         if (mode === 'highViewsLowUploads') loadingText = 'Loading high views, low uploads channels...';
         else if (mode === 'underratedChannels') loadingText = 'Loading underrated channels...';
         else if (mode === 'recentlyAddedToViralzaps') loadingText = 'Loading recently added to Viralzaps...';
-        var emptyText = 'No trending channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
-        if (mode === 'highViewsLowUploads') emptyText = 'No channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
-        else if (mode === 'underratedChannels') emptyText = 'No underrated channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
-        else if (mode === 'recentlyAddedToViralzaps') emptyText = 'No recently added channels found. Add your YouTube API key in youtube-config.js and ensure YouTube Data API v3 is enabled.';
+        var emptyText = 'No trending channels found.';
+        if (mode === 'highViewsLowUploads') emptyText = 'No channels found.';
+        else if (mode === 'underratedChannels') emptyText = 'No underrated channels found.';
+        else if (mode === 'recentlyAddedToViralzaps') emptyText = 'No recently added channels found.';
         resultsEl.innerHTML = '<div class="trending-channels-loading">' + escapeHtml(loadingText) + '</div>';
         loadChannelsByMode(mode)
             .then(function (channels) {

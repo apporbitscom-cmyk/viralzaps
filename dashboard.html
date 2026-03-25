@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Dashboard - Viralzaps</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard.css">
@@ -12,14 +12,20 @@
 </head>
 <body class="dashboard-body">
     <header class="dashboard-header">
+        <button type="button" class="dashboard-menu-toggle" id="dashboard-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="dashboard-sidebar">
+            <span></span><span></span><span></span>
+        </button>
         <a href="index.html" class="dashboard-logo-link" aria-label="Viralzaps home">
             <img src="assets/logo-viralzaps.svg" alt="" class="logo-img" width="168" height="32" decoding="async"/>
+            <div class="dashboard-logo-promo" aria-hidden="true">
+                <span class="dashboard-logo-promo-text">Welcome to viralzaps.</span>
+            </div>
         </a>
     </header>
 
     <div class="dashboard-layout">
         <!-- Left: Settings & Navigation -->
-        <aside class="dashboard-sidebar">
+        <aside class="dashboard-sidebar" id="dashboard-sidebar">
             <div class="sidebar-search-wrap">
                 <span class="sidebar-search-icon" aria-hidden="true">🔍</span>
                 <input type="search" class="sidebar-search" id="sidebar-search" placeholder="Search settings..." autocomplete="off">
@@ -77,6 +83,8 @@
             </div>
         </main>
     </div>
+
+    <div class="dashboard-sidebar-backdrop" id="dashboard-sidebar-backdrop" aria-hidden="true"></div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>

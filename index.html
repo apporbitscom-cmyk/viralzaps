@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Viralzaps - The Easiest Way to Research and Create Viral Videos</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,7 +60,11 @@
                     <div class="mockup-content">
                         <div class="mockup-header"></div>
                         <div class="mockup-body">
-                            <div class="mockup-chart"></div>
+                            <div class="mockup-chart mockup-ugc" aria-label="UGC-style product preview video">
+                                <video class="mockup-ugc-video" autoplay muted loop playsinline preload="metadata">
+                                    <source src="assets/UgcVdo.mp4" type="video/mp4">
+                                </video>
+                            </div>
                             <div class="mockup-stats">
                                 <div class="stat-item"></div>
                                 <div class="stat-item"></div>
@@ -222,6 +226,7 @@
                     <h3 class="plan-name">15 Days</h3>
                     <div class="plan-price">
                         <span class="price-amount">₹99</span>
+                        <span class="price-period">+ 100 credits/day</span>
                     </div>
                     <p class="plan-billing">Short access window to try everything</p>
                     <a href="#login" class="btn-plan">Sign in to subscribe</a>
@@ -237,6 +242,7 @@
                     <h3 class="plan-name">6 Months</h3>
                     <div class="plan-price">
                         <span class="price-amount">₹999</span>
+                        <span class="price-period">+ 200 credits/day</span>
                     </div>
                     <p class="plan-billing">Best value for ongoing research</p>
                     <a href="#login" class="btn-plan">Sign in to subscribe</a>
@@ -292,7 +298,7 @@
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Credits cover API-heavy actions in the app. Your plan (or trial) includes an allocation; you can buy more credit packs in the dashboard. Exact balances and history appear under <strong>Settings → Usage</strong>.</p>
+                        <p>Credits cover API-heavy actions in the app. Your plan includes an allocation; you can buy more credit packs in the dashboard. Exact balances and history appear under <strong>Settings → Usage</strong>.</p>
                     </div>
                 </div>
 
@@ -302,7 +308,7 @@
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>Yes. You add your <strong>YouTube Data API v3</strong> key in <code>youtube-config.js</code>. Trending Topics may use your backend <strong>Gemini</strong> key. Payments use <strong>Razorpay</strong> through the server—configure keys as described in the project docs.</p>
+                        <p>Yes. You set <strong>YOUTUBE_API_KEY</strong> in the backend <code>.env</code>. Trending Topics may use your backend <strong>Gemini</strong> key. Payments use <strong>Razorpay</strong> through the server—configure keys as described in the project docs.</p>
                     </div>
                 </div>
 
@@ -357,7 +363,7 @@
     <section class="cta-section">
         <div class="container">
             <h2 class="cta-title">Ready to research smarter?</h2>
-            <p class="cta-subtitle">Sign in, add your YouTube API key, and open the dashboard—everything else is in the app.</p>
+            <p class="cta-subtitle">Sign in, run the backend with your API keys in <code>.env</code>, and open the dashboard—everything else is in the app.</p>
             <a href="#login" class="btn-hero">Get started now</a>
         </div>
     </section>
@@ -378,7 +384,6 @@
                             <li><a href="#features">Features</a></li>
                             <li><a href="#get-started">Pricing</a></li>
                             <li><a href="#faq">FAQ</a></li>
-                            <li><a href="dashboard.html">Dashboard</a></li>
                             <li><a href="#terms" class="terms-policy-link">Terms of Service</a></li>
                             <li><a href="#privacy" class="privacy-policy-link">Privacy Policy</a></li>
                         </ul>
@@ -422,13 +427,10 @@
                     </div>
                     <span class="error-message" id="password-error"></span>
                 </div>
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="remember-me" name="remember">
-                        <span>Remember me</span>
-                    </label>
-                    <a href="#forgot-password" class="forgot-password">Forgot password?</a>
+                <div class="form-options form-options--right">
+                    <button type="button" class="forgot-password" id="forgot-password-btn">Forgot password?</button>
                 </div>
+                <p id="forgot-password-feedback" class="forgot-password-feedback" role="status" aria-live="polite" hidden></p>
                 <button type="submit" class="btn-login" id="login-submit">
                     <span class="btn-text">Sign in</span>
                     <span class="btn-loading" style="display: none;">Signing in...</span>
@@ -543,7 +545,7 @@
                 <ul class="legal-list">
                     <li><strong>Account information:</strong> When you register, we collect identifiers such as your email address and authentication data through <strong>Firebase Authentication</strong> (email/password and/or Google sign-in), subject to Google&apos;s and Firebase&apos;s terms.</li>
                     <li><strong>Payment information:</strong> Subscriptions and credit purchases are processed through <strong>Razorpay</strong>. Payment details are handled by Razorpay; we do not store your full card number on our servers.</li>
-                    <li><strong>Usage and preferences:</strong> The app may store preferences (for example, theme and feature-related settings) in your browser using <code>localStorage</code> on your device.</li>
+                    <li><strong>Usage and preferences:</strong> The app may store certain preferences (for example, theme and feature-related settings) on your device through your browser.</li>
                     <li><strong>Device and technical data:</strong> Standard data such as IP address, browser type, and device characteristics may be processed by our infrastructure and service providers when you access the site.</li>
                     <li><strong>YouTube data:</strong> When you use analytics and research features, we process publicly available channel and video data via the <strong>YouTube Data API</strong> using API keys you configure in the client.</li>
                     <li><strong>Backend processing:</strong> Certain features (for example, trending topics) may send requests to our server, which may use the <strong>Google Gemini</strong> API when configured. Content you submit for those features is processed according to Google&apos;s policies for that API.</li>
@@ -577,7 +579,7 @@
                 <p>We implement reasonable technical and organizational measures to protect personal information. No method of transmission over the Internet is completely secure; we cannot guarantee absolute security.</p>
 
                 <h3>6. Data Retention</h3>
-                <p>We retain information as long as needed to provide the Services and fulfill the purposes described here, unless a longer period is required by law. Client-side data in <code>localStorage</code> remains on your device until you clear it or your browser removes it.</p>
+                <p>We retain information as long as needed to provide the Services and fulfill the purposes described here, unless a longer period is required by law.</p>
 
                 <h3>7. Cookies and Similar Technologies</h3>
                 <p>We may use cookies or similar technologies where needed for authentication flows, preferences, or analytics. You can control cookies through your browser settings; disabling them may limit some functionality.</p>

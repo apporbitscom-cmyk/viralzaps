@@ -40,7 +40,7 @@ Single reference for frontend, backend, authentication, payments, and third-part
 | `firebase-config.js` | Init + auth helpers (Email/Password, Google) |
 | `razorpay-config.js` | Key ID + `apiBaseUrl` (backend URL) |
 | Razorpay Checkout | `https://checkout.razorpay.com/v1/checkout.js` |
-| `youtube-config.js` | YouTube Data API v3 API key |
+| `youtube-config.js` | Loads YouTube API key from `GET /api/youtube-config` (backend `.env`) |
 | Tesseract.js | `https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js` (OCR) |
 | `dashboard.js` | All dashboard logic (views, nav, credits, billing, payments) |
 
@@ -120,7 +120,7 @@ Single reference for frontend, backend, authentication, payments, and third-part
 
 | Service | Config / usage |
 |--------|----------------|
-| **YouTube Data API v3** | API key in `youtube-config.js`; used for home feed, search, channel/video data. |
+| **YouTube Data API v3** | `YOUTUBE_API_KEY` in backend `.env`; dashboard loads it via `/api/youtube-config`. |
 | **Firebase** | Project config in `firebase-config.js`; Auth only (no Firestore/Realtime DB in this doc). |
 | **Razorpay** | Key + backend URL in `razorpay-config.js`; backend uses env for secret and plan IDs. |
 
