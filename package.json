@@ -2,8 +2,8 @@
   "name": "viralzaps",
   "private": true,
   "scripts": {
-    "start": "npx serve . -l 3000",
-    "serve": "npx serve . -l 3000",
+    "start": "npx serve . -l 8080",
+    "serve": "npx serve . -l 8080",
     "backend": "cd backend && npm start",
     "dev": "concurrently \"npm start\" \"npm run backend\""
   },
