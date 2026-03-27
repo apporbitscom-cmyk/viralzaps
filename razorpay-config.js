@@ -5,12 +5,17 @@
  */
 (function () {
   var h = typeof window !== 'undefined' ? window.location.hostname : '';
+  var origin = typeof window !== 'undefined' ? window.location.origin : '';
   var isLocal =
     h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]';
+  var customBase =
+    typeof window !== 'undefined' && window.RAZORPAY_API_BASE_URL
+      ? String(window.RAZORPAY_API_BASE_URL).replace(/\/$/, '')
+      : '';
   window.RAZORPAY_CONFIG = {
-    keyId: 'rzp_test_SNPPB5DHPVeZNH',
+    keyId: 'rzp_live_STnApImE1yR966',
     apiBaseUrl: isLocal
       ? 'http://localhost:4000'
-      : (window.RAZORPAY_API_BASE_URL || 'https://YOUR-BACKEND-URL.railway.app')
+      : (customBase || origin)
   };
 })();
