@@ -10,7 +10,7 @@
   window.RAZORPAY_CONFIG = {
     keyId: 'rzp_test_SNPPB5DHPVeZNH',
     apiBaseUrl: isLocal
-      ? 'http://localhost:4000'
+      ? (window.VIRALZAPS_LOCAL_API_BASE_URL || '')
       : (window.RAZORPAY_API_BASE_URL || 'https://YOUR-BACKEND-URL.railway.app')
   };
 })();

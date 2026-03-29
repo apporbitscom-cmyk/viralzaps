@@ -341,6 +341,12 @@ function resetSignupForm() {
 function clearLoginErrors() {
     const errors = document.querySelectorAll('#login-form .error-message');
     errors.forEach(error => error.textContent = '');
+    const forgotFb = document.getElementById('forgot-password-feedback');
+    if (forgotFb) {
+        forgotFb.textContent = '';
+        forgotFb.hidden = true;
+        forgotFb.classList.remove('forgot-password-feedback--success');
+    }
 }
 
 function clearSignupErrors() {
@@ -610,7 +616,7 @@ function showPostAuthPlansModal() {
         '        <h3 class="plan-card-name">15 Days</h3>' +
         '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹99</span><span class="plan-card-period">/15 days</span></div>' +
         '      </div>' +
-        '      <p class="plan-card-features">15 days access</p>' +
+        '      <p class="plan-card-features">15 days access + 100 credits/day</p>' +
         '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Select & pay</button>' +
         '    </div>' +
         '    <div class="plan-card plan-card-featured" data-plan="plan_6m">' +
@@ -619,7 +625,7 @@ function showPostAuthPlansModal() {
         '        <h3 class="plan-card-name">6 Months</h3>' +
         '        <div class="plan-card-price-wrap"><span class="plan-card-price">₹999</span><span class="plan-card-period">/6 months</span></div>' +
         '      </div>' +
-        '      <p class="plan-card-features">6 months access</p>' +
+        '      <p class="plan-card-features">6 months access + 200 credits/day</p>' +
         '      <button type="button" class="plan-card-activate settings-btn settings-btn-primary">Select & pay</button>' +
         '    </div>' +
         '    <div class="plan-card" data-plan="plan_lifetime">' +
@@ -683,6 +689,84 @@ function getEmailAuthErrorMessage(error) {
     if (code === 'auth/network-request-failed') return 'Network error. Check your connection and try again.';
     if (code === 'auth/too-many-requests') return 'Too many attempts. Try again later or reset your password.';
     return error && (error.message || String(error)) || 'Something went wrong. Please try again.';
+}
+
+function getPasswordResetErrorMessage(error) {
+    const code = error && error.code;
+    if (code === 'auth/invalid-email') return 'Please enter a valid email address.';
+    if (code === 'auth/missing-email') return 'Enter your email address.';
+    if (code === 'auth/user-not-found') return 'No account found with this email.';
+    if (code === 'auth/user-disabled') return 'This account has been disabled.';
+    if (code === 'auth/operation-not-allowed') {
+        return 'Password reset is not enabled. Turn on Email/Password in Firebase Console → Authentication.';
+    }
+    if (code === 'auth/configuration-not-found') {
+        return 'Firebase Auth is not set up. Enable Email/Password in Firebase Console.';
+    }
+    if (code === 'auth/network-request-failed') return 'Network error. Check your connection and try again.';
+    if (code === 'auth/too-many-requests') return 'Too many attempts. Try again in a few minutes.';
+    return error && (error.message || String(error)) || 'Could not send reset email. Try again.';
+}
+
+// Forgot password — Firebase sendPasswordResetEmail
+const forgotPasswordBtn = document.getElementById('forgot-password-btn');
+if (forgotPasswordBtn) {
+    forgotPasswordBtn.addEventListener('click', async () => {
+        const emailInput = document.getElementById('login-email');
+        const feedback = document.getElementById('forgot-password-feedback');
+        const email = emailInput ? emailInput.value.trim() : '';
+
+        clearLoginErrors();
+
+        if (!email) {
+            showError('email-error', 'Enter your email address first, then tap Forgot password.');
+            return;
+        }
+        if (!validateEmail(email)) {
+            showError('email-error', 'Please enter a valid email address');
+            return;
+        }
+
+        if (typeof getAuthUnsupportedReason === 'function') {
+            const reason = getAuthUnsupportedReason();
+            if (reason) {
+                alert(reason);
+                return;
+            }
+        }
+        if (typeof ensureFirebaseReady === 'function') await ensureFirebaseReady();
+        if (typeof sendPasswordResetEmail !== 'function' || typeof isFirebaseConfigured !== 'function') {
+            const why =
+                typeof getFirebaseAuthUnavailableReason === 'function'
+                    ? getFirebaseAuthUnavailableReason()
+                    : null;
+            alert(why || 'Password reset is not available. Check Firebase configuration.');
+            return;
+        }
+        if (!isFirebaseConfigured()) {
+            const why =
+                typeof getFirebaseAuthUnavailableReason === 'function'
+                    ? getFirebaseAuthUnavailableReason()
+                    : null;
+            alert(why || 'Password reset is not available.');
+            return;
+        }
+
+        forgotPasswordBtn.disabled = true;
+        try {
+            await sendPasswordResetEmail(email);
+            if (feedback) {
+                feedback.textContent =
+                    'If an account exists for that email, we sent a link to reset your password. Check your inbox and spam folder.';
+                feedback.hidden = false;
+                feedback.classList.add('forgot-password-feedback--success');
+            }
+        } catch (error) {
+            showError('email-error', getPasswordResetErrorMessage(error));
+        } finally {
+            forgotPasswordBtn.disabled = false;
+        }
+    });
 }
 
 // Login Form Submission (Firebase)

@@ -20,7 +20,9 @@ function getFirebaseApiBaseUrl() {
         return raw;
     }
     if (typeof location !== 'undefined' && isLoopbackHostname(location.hostname)) {
-        return 'http://localhost:4000';
+        return (typeof window !== 'undefined' && window.VIRALZAPS_LOCAL_API_BASE_URL
+            ? String(window.VIRALZAPS_LOCAL_API_BASE_URL).replace(/\/$/, '')
+            : '');
     }
     return '';
 }
@@ -51,8 +53,12 @@ function getApiBaseUrlCandidates() {
     var primary = getFirebaseApiBaseUrl();
     if (primary) list.push(primary);
     if (typeof location !== 'undefined' && isLoopbackHostname(location.hostname)) {
+        var rng =
+            typeof window !== 'undefined' && typeof window.viralzapsLocalBackendPortRange === 'function'
+                ? window.viralzapsLocalBackendPortRange()
+                : { start: 4000, end: 4010 };
         var p;
-        for (p = 4000; p <= 4010; p++) {
+        for (p = rng.start; p <= rng.end; p++) {
             var b = 'http://localhost:' + p;
             if (list.indexOf(b) === -1) list.push(b);
         }
@@ -65,6 +71,9 @@ function applyResolvedApiBaseUrl(base) {
     if (window.RAZORPAY_CONFIG) window.RAZORPAY_CONFIG.apiBaseUrl = base;
     window.VIRALZAPS_PUBLIC_CONFIG = window.VIRALZAPS_PUBLIC_CONFIG || {};
     window.VIRALZAPS_PUBLIC_CONFIG.apiBaseUrl = base;
+    if (typeof window.reloadViralzapsYoutubeApiKey === 'function') {
+        window.reloadViralzapsYoutubeApiKey();
+    }
 }
 
 async function initFirebaseFromBackend() {
@@ -96,7 +105,7 @@ async function initFirebaseFromBackend() {
     }
     if (!r) {
         firebaseInitError = sawNetworkError
-            ? 'Could not reach the Viralzaps API. Start the backend: cd backend && npm start (default port 4000).'
+            ? 'Could not reach the Viralzaps API. Start the backend (cd backend && npm start) and match api-base-url.js VIRALZAPS_LOCAL_API_BASE_URL to your port.'
             : 'No API base URL to try. Set RAZORPAY_CONFIG.apiBaseUrl or open the app on localhost.';
         return;
     }
@@ -110,7 +119,7 @@ async function initFirebaseFromBackend() {
         var serverMsg = errBody && errBody.error ? String(errBody.error) : '';
         if (r.status === 404) {
             firebaseInitError =
-                'GET /api/firebase-config returned 404 on every port tried (4000–4010). Something else may be bound to 4000, or the backend is an old build. Fix: stop stray processes, then from viralzap/backend run npm start using the latest server.js.';
+                'GET /api/firebase-config returned 404 on every port in the local range. Stop stray processes, align VIRALZAPS_LOCAL_API_BASE_URL in api-base-url.js with your backend port, then restart the API.';
             return;
         }
         if (r.status === 503) {

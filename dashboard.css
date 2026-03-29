@@ -90,6 +90,40 @@
     transform: translateY(-1px);
 }
 
+.dashboard-logo-promo {
+    display: block;
+    max-width: 38vw;
+}
+
+.dashboard-logo-promo-text {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 0;
+    animation: dashboardLogoPromoReveal 2.8s steps(40, end) forwards;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+}
+
+@keyframes dashboardLogoPromoReveal {
+    from { max-width: 0; }
+    to { max-width: 38ch; }
+}
+
+.dashboard-body [data-theme="dark"] .dashboard-logo-promo-text {
+    color: var(--text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-logo-promo-text {
+        animation: none;
+        max-width: 100%;
+    }
+}
+
 .dashboard-header .dashboard-logo-link .logo-img {
     display: block;
 }

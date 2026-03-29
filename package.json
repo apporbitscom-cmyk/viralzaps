@@ -2,6 +2,8 @@
   "name": "viralzaps",
   "private": true,
   "scripts": {
+    "build": "node scripts/inject-api-url.js",
+    "build:static": "node scripts/inject-api-url.js && node scripts/copy-static-for-hosting.js",
     "start": "npx serve . -l 3000",
     "serve": "npx serve . -l 3000",
     "backend": "cd backend && npm start",

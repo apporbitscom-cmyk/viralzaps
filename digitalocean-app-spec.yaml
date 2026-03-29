@@ -1,0 +1,69 @@
+# DigitalOcean App Platform spec — replace YOUR_GITHUB_ORG/YOUR_REPO and env values.
+# Create: doctl apps create --spec digitalocean-app-spec.yaml
+# Update: https://docs.digitalocean.com/products/app-platform/how-to/manage-apps/
+#
+# Deploy the Web Service first; then set VIRALZAPS_API_BASE_URL on the static site
+# to the API's HTTPS URL (Build-time variable) and redeploy the static site.
+
+name: viralzaps
+region: nyc
+
+services:
+  - name: api
+    github:
+      repo: YOUR_GITHUB_ORG/YOUR_REPO
+      branch: main
+      deploy_on_push: true
+    source_dir: backend
+    build_command: npm install
+    run_command: npm start
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: RAZORPAY_KEY_ID
+        scope: RUN_TIME
+        type: SECRET
+        value: replace-with-rzp-key-id
+      - key: RAZORPAY_KEY_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: replace-with-rzp-secret
+      - key: RAZORPAY_CURRENCY
+        scope: RUN_TIME
+        value: USD
+      - key: FIREBASE_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: replace-me
+      - key: FIREBASE_AUTH_DOMAIN
+        scope: RUN_TIME
+        value: replace-me
+      - key: FIREBASE_PROJECT_ID
+        scope: RUN_TIME
+        value: replace-me
+      - key: FIREBASE_STORAGE_BUCKET
+        scope: RUN_TIME
+        value: replace-me
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        scope: RUN_TIME
+        value: replace-me
+      - key: FIREBASE_APP_ID
+        scope: RUN_TIME
+        value: replace-me
+
+static_sites:
+  - name: web
+    github:
+      repo: YOUR_GITHUB_ORG/YOUR_REPO
+      branch: main
+      deploy_on_push: true
+    source_dir: /
+    environment_slug: node-js
+    build_command: npm install && npm run build:static
+    output_dir: dist
+    index_document: index.html
+    envs:
+      - key: VIRALZAPS_API_BASE_URL
+        scope: BUILD_TIME
+        value: https://REPLACE-WITH-API-APP-URL.ondigitalocean.app

@@ -111,6 +111,44 @@ body {
     font-weight: 800;
 }
 
+/* Animated promo line under the top-left logo */
+.logo-animated {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+}
+
+.logo-promo {
+    display: block;
+    max-width: 42vw;
+}
+
+.logo-promo-text {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    /* Reveal left-to-right by animating the available width */
+    max-width: 0;
+    animation: logoPromoReveal 2.8s steps(40, end) forwards;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+}
+
+@keyframes logoPromoReveal {
+    from { max-width: 0; }
+    to { max-width: 38ch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-promo-text {
+        animation: none;
+        max-width: 100%;
+    }
+}
+
 .logo-img {
     height: 32px;
     width: auto;
@@ -415,6 +453,25 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 0.5rem;
     opacity: 0.8;
+}
+
+.mockup-chart--video {
+    height: auto;
+    min-height: 200px;
+    aspect-ratio: 16 / 9;
+    max-height: 280px;
+    padding: 0;
+    background: var(--bg-dark);
+    opacity: 1;
+    overflow: hidden;
+}
+
+.mockup-chart-video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    border-radius: inherit;
 }
 
 .mockup-stats {
@@ -2649,6 +2706,10 @@ button.btn-plan:disabled {
     font-size: 0.875rem;
 }
 
+.form-options--right {
+    justify-content: flex-end;
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -2678,11 +2739,33 @@ button.btn-plan:disabled {
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    text-align: right;
 }
 
 .forgot-password:hover {
     color: var(--primary-dark);
     text-decoration: underline;
+}
+
+.forgot-password:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.forgot-password-feedback {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--text-secondary, #5c5c5c);
+}
+
+.forgot-password-feedback--success {
+    color: var(--success-color, #0d9488);
 }
 
 .btn-login {

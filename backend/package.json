@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "frontend": "cd .. && npm start",
+    "full": "cd .. && npm run dev"
   },
   "dependencies": {
     "cors": "^2.8.5",

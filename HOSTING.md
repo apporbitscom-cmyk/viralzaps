@@ -19,6 +19,71 @@ To make it public, deploy both and point the frontend to the live backend URL.
 
 ---
 
+## DigitalOcean App Platform (frontend + API)
+
+This repo fits **one App** with two components: a **Web Service** (Node API in `backend/`) and a **Static Site** (HTML/JS at the repo root). Push the project to **GitHub**, then deploy from the DigitalOcean control panel or with [`doctl`](https://docs.digitalocean.com/reference/doctl/).
+
+### 1. Push code to GitHub
+
+Create a repository and push this project. You will connect it in the next step.
+
+### 2. Create the backend (Web Service)
+
+1. In [DigitalOcean](https://cloud.digitalocean.com/) go to **Apps** → **Create App** → **GitHub** and authorize the repo.
+2. **Resources**: add a **Web Service** with:
+   - **Root directory:** `backend`
+   - **Build command:** `npm install`
+   - **Run command:** `npm start`
+3. **HTTP port:** `8080` (App Platform sets `PORT`; the server reads `process.env.PORT`.)
+4. Under **Environment variables** (runtime), add at least:
+
+| Key | Notes |
+|-----|--------|
+| `RAZORPAY_KEY_ID` | From Razorpay Dashboard |
+| `RAZORPAY_KEY_SECRET` | Secret; mark as **Encrypted** |
+| `RAZORPAY_CURRENCY` | e.g. `INR` or `USD` |
+| `FIREBASE_API_KEY` | Same values as `backend/firebase.env.example` (see `backend/firebase.env.example`) |
+| `FIREBASE_AUTH_DOMAIN` | |
+| `FIREBASE_PROJECT_ID` | |
+| `FIREBASE_STORAGE_BUCKET` | |
+| `FIREBASE_MESSAGING_SENDER_ID` | |
+| `FIREBASE_APP_ID` | |
+| `YOUTUBE_API_KEY` or `YOUTUBE_API_KEYS` | Optional; comma-separated for multiple keys |
+
+Add any other keys you use locally (e.g. `GEMINI_API_KEY`, Google Sheets, Razorpay plan IDs). See `backend/.env.example`.
+
+5. Deploy and open the app’s **URL** for this component (e.g. `https://your-api-xxxxx.ondigitalocean.app`). Confirm `https://<that-host>/api/health` returns JSON with `"ok": true`.
+
+### 3. Create the static site (frontend)
+
+1. In the same App, add a **Static Site** (or create it in a second pass if the UI only allows one resource at a time).
+2. **Root directory:** `/` (repository root).
+3. **Build strategy:** use the Node environment so `npm run build:static` runs.
+4. **Build command:** `npm run build:static`
+5. **Output directory:** `dist`  
+   This copies only the public HTML/CSS/JS and `assets/` into `dist/` so the backend source is **not** published as static files.
+6. **Build-time environment variable:** `VIRALZAPS_API_BASE_URL` = your **backend** HTTPS URL from step 2 (no trailing slash), e.g. `https://your-api-xxxxx.ondigitalocean.app`.  
+   This runs `scripts/inject-api-url.js` during the build so `api-base-url.js` points at your API.
+
+7. Deploy. The static site gets its own URL (e.g. `https://your-app-xxxxx.ondigitalocean.app`). Share **that** URL with users.
+
+### 4. Firebase
+
+In [Firebase Console](https://console.firebase.google.com/) → **Authentication** → **Settings** → **Authorized domains**, add:
+
+- Your static site hostname (e.g. `your-app-xxxxx.ondigitalocean.app`)
+- Any custom domain you attach later
+
+### 5. Custom domain (optional)
+
+In the App → **Settings** → **Domains**, add your domain and follow DNS instructions (DigitalOcean or your registrar).
+
+### 6. App spec file (optional)
+
+If you use `doctl apps create --spec`, see `digitalocean-app-spec.yaml` in the repo root. Replace the placeholder GitHub repo and set `VIRALZAPS_API_BASE_URL` after the API URL is known.
+
+---
+
 ## Step 1: Deploy the backend
 
 The backend is in the `backend/` folder and runs with `node server.js`.
@@ -98,7 +163,7 @@ Use **live** keys from [Razorpay Dashboard](https://dashboard.razorpay.com/app/k
 
 ## Step 4: Point frontend to the live backend
 
-Right now the frontend uses `http://localhost:4000`. It must use your **deployed backend URL** in production.
+Edit **`api-base-url.js`** only for local dev (`VIRALZAPS_LOCAL_API_BASE_URL`). In production the build injects your live API URL from **`VIRALZAPS_API_BASE_URL`**.
 
 **Option A – Set production URL in code**  
 Edit `razorpay-config.js` and replace the placeholder with your real backend URL:
@@ -111,7 +176,7 @@ Change to:
 : (window.RAZORPAY_API_BASE_URL || 'https://your-actual-backend.up.railway.app')
 ```
 
-On localhost the app still uses `http://localhost:4000`; when visitors use your live site it will use the URL above.
+On localhost the app uses **`VIRALZAPS_LOCAL_API_BASE_URL`** in `api-base-url.js`; visitors on your deployed site use the injected production URL.
 
 **Option B – Use same host for frontend and API (optional)**  
 If you serve the frontend and the backend from the same origin (e.g. same Vercel project with serverless API, or same VPS with reverse proxy), you can set `apiBaseUrl: ''` and use relative paths like `/api/...` so the same code works everywhere.

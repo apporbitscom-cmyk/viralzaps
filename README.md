@@ -31,6 +31,8 @@ viralzap/
 
 From the project root: run `npm start` for the site, and `npm run backend` (in another terminal or via `npm run dev`) for the API.
 
+**Backend URL on localhost:** set once in **`api-base-url.js`** (`VIRALZAPS_LOCAL_API_BASE_URL`). The app uses that value everywhere; if ports 4000–4010 are probed, the range is derived from that URL’s port.
+
 **If the browser says “This site can’t be reached”:** nothing is listening yet. Start the server first (`npm start`), then open **http://localhost:3000** (use `http`, not `https`, unless you’ve set up TLS). Do not rely on double‑clicking `index.html` for login or Firebase—use a local server.
 
 ## Getting Started

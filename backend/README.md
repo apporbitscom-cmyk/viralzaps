@@ -49,9 +49,8 @@ This server handles **Razorpay** payments for:
    - Set `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_SERVICE_ACCOUNT_JSON` in `.env`. Optional: `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB`.
 
 5. **Frontend config**  
-   In the project root, edit `razorpay-config.js`:
-   - Set `keyId` to your Razorpay **Key ID** (same as above).
-   - Set `apiBaseUrl` to your backend URL (e.g. `http://localhost:4000` for local dev).
+   In the project root, edit `razorpay-config.js` (Razorpay **Key ID**).  
+   For local dev, set the API base URL once in **`api-base-url.js`** (`VIRALZAPS_LOCAL_API_BASE_URL`, default port `4000`).
 
 6. **Run backend**
 
