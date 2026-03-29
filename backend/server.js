@@ -44,25 +44,6 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-// Root – visiting / on the bound port shows service info
-app.get('/', (req, res) => {
-  res.json({
-    ok: true,
-    message: 'Viralzaps backend',
-    endpoints: {
-      health: 'GET /api/health',
-      youtubeTrendingSearch: 'GET /api/youtube-trending-topics-search?q=',
-      createOrder: 'POST /api/create-order',
-      verifyPayment: 'POST /api/verify-payment',
-      createSubscription: 'POST /api/create-subscription',
-      verifySubscriptionPayment: 'POST /api/verify-subscription-payment',
-      geminiTrending: 'POST /api/gemini-trending',
-      firebaseConfig: 'GET /api/firebase-config',
-      youtubeConfig: 'GET /api/youtube-config'
-    }
-  });
-});
-
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, razorpay: !!razorpay });
@@ -409,15 +390,6 @@ app.get('/api/youtube-trending-topics-search', async (req, res) => {
 
 /**
  * Gemini-powered "Trending Topics" idea exploration.
- *
- * Body:
- * - keyword: string (required)
- * - parent: string (optional) - when present, generates sub-ideas for that node
- * - exclusions: string[] (optional) - topics to avoid repeating
- * - geminiApiKey: string (optional) - caller's Gemini key for deeper tree expansion (uses server key if omitted)
- *
- * Response:
- * { items: string[] } where items.length <= 5
  */
 app.post('/api/gemini-trending', async (req, res) => {
   try {
@@ -447,8 +419,6 @@ app.post('/api/gemini-trending', async (req, res) => {
 
 /**
  * Create a Razorpay order for one-time payment (credit packs, etc.)
- * Body: { amount, currency?, receipt?, notes? }
- * amount: number in smallest unit (e.g. 999 for $9.99 in cents if you use USD)
  */
 app.post('/api/create-order', async (req, res) => {
   if (!razorpay) {
@@ -479,8 +449,6 @@ app.post('/api/create-order', async (req, res) => {
 
 /**
  * Create a Razorpay subscription for a plan.
- * Body: { planKey, customer_email?, customer_name? }
- * planKey: 'starter' | 'professional' | 'ultimate'
  */
 app.post('/api/create-subscription', async (req, res) => {
   if (!razorpay) {
@@ -522,7 +490,6 @@ app.post('/api/create-subscription', async (req, res) => {
 
 /**
  * Verify payment signature after successful checkout (for orders).
- * Body: { order_id, payment_id, signature } or { razorpay_order_id, razorpay_payment_id, razorpay_signature }
  */
 function hmacSha256(secret, body) {
   return crypto.createHmac('sha256', secret).update(body).digest('hex');
@@ -563,8 +530,7 @@ app.post('/api/verify-payment', async (req, res) => {
 });
 
 /**
- * Verify subscription payment (first charge). Optional: use webhooks in production.
- * Body: { subscription_id, payment_id, signature }
+ * Verify subscription payment (first charge).
  */
 app.post('/api/verify-subscription-payment', async (req, res) => {
   const secret = process.env.RAZORPAY_KEY_SECRET;
@@ -594,6 +560,16 @@ app.post('/api/verify-subscription-payment', async (req, res) => {
   res.json({ verified: true });
 });
 
+// ─── Serve frontend static files ─────────────────────────────────────────────
+// All API routes are defined above. Anything below is for the frontend.
+app.use(express.static(path.join(__dirname, '..')));
+
+// Catch-all: serve index.html for any non-API route (SPA support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 function startServer(port) {
   const p = Number(port);
   const server = app.listen(p, () => {
@@ -603,7 +579,7 @@ function startServer(port) {
     if (!razorpay) console.warn('Razorpay keys missing – set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET');
     if (!googleSheetsConfigured()) {
       console.warn(
-        'Google Sheets payment log disabled – set GOOGLE_APPS_SCRIPT_WEBHOOK_URL + GOOGLE_APPS_SCRIPT_WEBHOOK_SECRET (see backend/google-apps-script-payment-webhook.gs), or service account JSON + share sheet.'
+        'Google Sheets payment log disabled – set GOOGLE_APPS_SCRIPT_WEBHOOK_URL + GOOGLE_APPS_SCRIPT_WEBHOOK_SECRET'
       );
     }
   });
