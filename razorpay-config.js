@@ -10,7 +10,7 @@
     h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]';
 
   window.RAZORPAY_CONFIG = {
-    keyId: 'rzp_live_STnApImE1yR966',
+    keyId: 'rzp_test_SNPPB5DHPVeZNH',
     apiBaseUrl: isLocal
       ? (window.VIRALZAPS_LOCAL_API_BASE_URL || '')
       : window.location.origin
